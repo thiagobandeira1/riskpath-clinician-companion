@@ -45,6 +45,7 @@ import {
 } from "@/components/ui/table";
 
 export const Route = createFileRoute("/batch")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "Batch Score — RiskPath" },
