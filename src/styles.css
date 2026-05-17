@@ -122,3 +122,17 @@
     font-variant-numeric: tabular-nums;
   }
 }
+
+@media print {
+  html, body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .print\:hidden, header.sticky, aside, footer { display: none !important; }
+  main { padding: 0 !important; }
+  .max-w-7xl { max-width: none !important; }
+  .print-page { max-width: none !important; }
+  .print-break { break-before: page; page-break-before: always; }
+  .card, [class*="bg-card"] { background: #fff !important; box-shadow: none !important; }
+}
+
