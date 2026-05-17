@@ -684,35 +684,35 @@ function BatchPage() {
                         else next.add(r.idx);
                         setExpanded(next);
                       };
-                      return (
-                        <Fragment key={r.idx}>
-                          <TableRow
-                            key={r.idx}
-                            onClick={toggle}
-                            className={cn(
-                              "cursor-pointer",
-                              atRisk && "bg-rose-50/40 dark:bg-rose-950/20 hover:bg-rose-50/60 dark:hover:bg-rose-950/30",
+                      return [
+                        <TableRow
+                          key={`row-${r.idx}`}
+                          onClick={toggle}
+                          className={cn(
+                            "cursor-pointer",
+                            atRisk && "bg-rose-50/40 dark:bg-rose-950/20 hover:bg-rose-50/60 dark:hover:bg-rose-950/30",
+                          )}
+                        >
+                          <TableCell className="font-mono tabular-nums text-xs">{r.idx}</TableCell>
+                          <TableCell className="text-sm">{getChapterLabel(r.chapter)}</TableCell>
+                          <TableCell className="text-sm">{r.discharge ?? "—"}</TableCell>
+                          <TableCell className="font-mono text-xs">{r.drg ?? "—"}</TableCell>
+                          <TableCell className="text-right font-mono tabular-nums">{r.probability.toFixed(3)}</TableCell>
+                          <TableCell>
+                            {atRisk ? (
+                              <Badge className="bg-rose-500 hover:bg-rose-500 text-white">AT RISK</Badge>
+                            ) : (
+                              <Badge className="bg-emerald-500 hover:bg-emerald-500 text-white">LOW RISK</Badge>
                             )}
-                          >
-                            <TableCell className="font-mono tabular-nums text-xs">{r.idx}</TableCell>
-                            <TableCell className="text-sm">{getChapterLabel(r.chapter)}</TableCell>
-                            <TableCell className="text-sm">{r.discharge ?? "—"}</TableCell>
-                            <TableCell className="font-mono text-xs">{r.drg ?? "—"}</TableCell>
-                            <TableCell className="text-right font-mono tabular-nums">{r.probability.toFixed(3)}</TableCell>
-                            <TableCell>
-                              {atRisk ? (
-                                <Badge className="bg-rose-500 hover:bg-rose-500 text-white">AT RISK</Badge>
-                              ) : (
-                                <Badge className="bg-emerald-500 hover:bg-emerald-500 text-white">LOW RISK</Badge>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                            </TableCell>
-                          </TableRow>
-                          {isExpanded && <ExpandedRow key={`${r.idx}-exp`} features={r.features} colSpan={7} />}
-                        </Fragment>
-                      );
+                          </TableCell>
+                          <TableCell>
+                            {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                          </TableCell>
+                        </TableRow>,
+                        isExpanded ? (
+                          <ExpandedRow key={`exp-${r.idx}`} features={r.features} colSpan={7} />
+                        ) : null,
+                      ];
                     })}
                   </TableBody>
                 </Table>
