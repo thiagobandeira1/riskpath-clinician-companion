@@ -90,7 +90,7 @@ function InsightsPage() {
   const [showFeatDist, setShowFeatDist] = useState(false);
 
   const probs = useMemo(() => cohort.patients.map((p) => p.probability), [cohort]);
-  const meanProb = useMemo(
+  void useMemo(
     () => probs.reduce((a, b) => a + b, 0) / probs.length,
     [probs],
   );
