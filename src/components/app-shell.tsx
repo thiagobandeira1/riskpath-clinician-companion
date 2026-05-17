@@ -170,19 +170,6 @@ export function AppShell({
                 ]}
                 pathname={pathname}
               />
-              {!collapsed && (
-                <div className="px-3 mt-1">
-                  <a
-                    href="https://docs.lovable.dev"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 h-9 px-2 rounded-md text-sm text-muted-foreground hover:bg-accent"
-                  >
-                    <BookOpen className="h-4 w-4" />
-                    <span>Docs</span>
-                  </a>
-                </div>
-              )}
             </nav>
             <div className="p-2 border-t">
               <Tooltip>
