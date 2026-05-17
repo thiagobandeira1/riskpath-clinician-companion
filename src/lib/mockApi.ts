@@ -178,15 +178,15 @@ function makePatient(targetProb: number, seed: number): Patient {
   const features: PatientFeatures = {};
   for (const f of FEATURES) {
     if (f.type === "categorical") {
-      // ~pct_nan chance of null
       if (rng() < f.pct_nan) {
         features[f.name] = null;
         continue;
       }
-      // Skew categorical choice: higher targetProb -> later (riskier-sounding) levels more often
+      // Risky patients pick from the high-risk side of each list (the canonical
+      // levels are ordered roughly low→high risk for the relevant features).
       const skew = targetProb;
       const r = rng();
-      const idx = Math.floor((r * 0.6 + skew * 0.4) * f.levels.length) % f.levels.length;
+      const idx = Math.floor((r * 0.55 + skew * 0.45) * f.levels.length) % f.levels.length;
       features[f.name] = f.levels[idx];
     } else {
       if (rng() < f.pct_nan) {
@@ -195,27 +195,36 @@ function makePatient(targetProb: number, seed: number): Patient {
       }
       const { min, median, max } = f;
       const t = rng();
-      // Triangular-ish around median
       const base = t < 0.5 ? min + (median - min) * (t * 2) : median + (max - median) * ((t - 0.5) * 2);
-      // Push toward max for higher risk
       const skewed = base + (max - median) * targetProb * (rng() * 0.6 - 0.1);
       const val = Math.max(min, Math.min(max, skewed));
-      // Reasonable precision
       const precision = max - min < 5 ? 4 : max - min < 100 ? 2 : 1;
       features[f.name] = Number(val.toFixed(precision));
     }
   }
+
+  // Pin the target-encoded features to targetProb (clamped to each TE range),
+  // so the deterministic probabilityFor lands close to targetProb.
+  const clampTE = (lo: number, hi: number) => Math.max(lo, Math.min(hi, targetProb));
+  features.drg_code_te = Number(clampTE(0.065, 0.66).toFixed(4));
+  features.discharge_location_te = Number(clampTE(0.001, 0.51).toFixed(4));
+  features.last_drg_dispo_te = Number(clampTE(0.08, 0.59).toFixed(4));
+  features.primary_dx_chapter_te = Number(clampTE(0.09, 0.49).toFixed(4));
+  features.race_te = Number(clampTE(0.06, 0.26).toFixed(4));
+
   return { id: `mock-${seed}`, features };
 }
 
-// Calibrate toward a target probability by binary-searching clinical_complexity.
+// Calibrate by binary-searching a wide-range lever (clinical_complexity) so the
+// model's probability lands near targetProb. Stops early if saturated.
 function calibrate(patient: Patient, targetProb: number): Patient {
   let lo = -2.38;
   let hi = 352;
-  for (let i = 0; i < 32; i++) {
+  for (let i = 0; i < 40; i++) {
     const mid = (lo + hi) / 2;
     patient.features.clinical_complexity = Number(mid.toFixed(3));
     const p = probabilityFor(patient.features);
+    if (Math.abs(p - targetProb) < 0.005) break;
     if (p < targetProb) lo = mid;
     else hi = mid;
   }
