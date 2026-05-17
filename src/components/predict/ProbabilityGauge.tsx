@@ -1,18 +1,18 @@
 import { motion, useSpring, useTransform } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from "date-fns";
+import { getRiskBand } from "@/lib/riskBands";
+import { cn } from "@/lib/utils";
 
 interface Props {
   probability: number | null;
-  atRisk: boolean | null;
   updatedAt: number | null;
   loading: boolean;
 }
 
-// Build a semicircular arc path
 const W = 280;
 const H = 160;
 const CX = W / 2;
@@ -28,20 +28,44 @@ const START = polar(0);
 const END = polar(180);
 const FULL_PATH = `M ${START.x} ${START.y} A ${R} ${R} 0 0 1 ${END.x} ${END.y}`;
 
-export function ProbabilityGauge({ probability, atRisk, updatedAt, loading }: Props) {
+export function ProbabilityGauge({ probability, updatedAt, loading }: Props) {
   const spring = useSpring(0, { stiffness: 100, damping: 20 });
   const display = useTransform(spring, (v) => v.toFixed(3));
 
+  const prevRef = useRef<number | null>(null);
+  const [blurArc, setBlurArc] = useState(false);
+  const [pulseHex, setPulseHex] = useState<string | null>(null);
+
   useEffect(() => {
     spring.set(probability ?? 0);
+    if (probability !== null) {
+      const prev = prevRef.current;
+      if (prev !== null) {
+        const delta = Math.abs(probability - prev);
+        if (delta > 0.1) {
+          setBlurArc(true);
+          setTimeout(() => setBlurArc(false), 250);
+        }
+        const prevBand = getRiskBand(prev).id;
+        const nextBand = getRiskBand(probability).id;
+        if (prevBand !== nextBand) {
+          setPulseHex(getRiskBand(probability).hex);
+          setTimeout(() => setPulseHex(null), 320);
+        }
+      }
+      prevRef.current = probability;
+    }
   }, [probability, spring]);
 
-  // arc length approx: π * R for semicircle
   const arcLength = Math.PI * R;
   const dashOffset = useTransform(spring, (v) => arcLength * (1 - v));
+  const band = probability === null ? null : getRiskBand(probability);
 
   return (
-    <Card className="h-full">
+    <Card
+      className={cn("h-full transition-shadow duration-300")}
+      style={pulseHex ? { boxShadow: `0 0 0 2px ${pulseHex}` } : undefined}
+    >
       <CardHeader className="pb-2">
         <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           30-Day Risk Probability
@@ -57,7 +81,6 @@ export function ProbabilityGauge({ probability, atRisk, updatedAt, loading }: Pr
                 <stop offset="100%" stopColor="oklch(0.645 0.246 16.439)" />
               </linearGradient>
             </defs>
-            {/* track */}
             <path
               d={FULL_PATH}
               stroke="currentColor"
@@ -66,7 +89,6 @@ export function ProbabilityGauge({ probability, atRisk, updatedAt, loading }: Pr
               fill="none"
               strokeLinecap="round"
             />
-            {/* filled arc */}
             <motion.path
               d={FULL_PATH}
               stroke="url(#gauge-grad)"
@@ -74,9 +96,12 @@ export function ProbabilityGauge({ probability, atRisk, updatedAt, loading }: Pr
               fill="none"
               strokeLinecap="round"
               strokeDasharray={arcLength}
-              style={{ strokeDashoffset: dashOffset }}
+              style={{
+                strokeDashoffset: dashOffset,
+                filter: blurArc ? "blur(2px)" : "none",
+                transition: "filter 250ms ease-out",
+              }}
             />
-            {/* tick labels */}
             <text x={START.x - 4} y={CY + 18} className="fill-muted-foreground" fontSize="10" textAnchor="middle" fontFamily="JetBrains Mono">
               0.00
             </text>
@@ -95,22 +120,15 @@ export function ProbabilityGauge({ probability, atRisk, updatedAt, loading }: Pr
           ) : probability === null ? (
             <div className="text-3xl font-mono text-muted-foreground">—.———</div>
           ) : (
-            <motion.div className="text-[48px] leading-none font-mono font-semibold tabular-nums">
+            <motion.div className="text-[48px] leading-none font-mono font-semibold tabular-nums tracking-tight">
               {display}
             </motion.div>
           )}
         </div>
 
-        {atRisk !== null && probability !== null && (
-          <Badge
-            variant="secondary"
-            className={
-              atRisk
-                ? "mt-4 bg-rose-100 text-rose-900 dark:bg-rose-950/50 dark:text-rose-200 border-rose-200 dark:border-rose-900"
-                : "mt-4 bg-emerald-100 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200 border-emerald-200 dark:border-emerald-900"
-            }
-          >
-            {atRisk ? "AT RISK" : "LOW RISK"}
+        {band !== null && probability !== null && (
+          <Badge variant="outline" className={cn("mt-4 border", band.badgeClass)}>
+            {band.label}
           </Badge>
         )}
 
