@@ -5,7 +5,6 @@ import {
   BarChart3,
   ScrollText,
   Settings as SettingsIcon,
-  BookOpen,
   ChevronLeft,
   ChevronRight,
   Sun,
@@ -16,14 +15,6 @@ import {
 import { Logo, Wordmark } from "@/components/logo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useLocalStorage } from "@/lib/storage";
 import { useTheme } from "@/components/theme-provider";
