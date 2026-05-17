@@ -82,6 +82,16 @@ export function ShapWaterfall({ explanation, loading, onReexplain, disabled }: P
                 layout="vertical"
                 margin={{ top: 8, right: 16, left: 8, bottom: 8 }}
               >
+                <defs>
+                  <linearGradient id="shap-rose" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#e11d48" />
+                    <stop offset="100%" stopColor="#f43f5e" />
+                  </linearGradient>
+                  <linearGradient id="shap-emerald" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#10b981" />
+                    <stop offset="100%" stopColor="#059669" />
+                  </linearGradient>
+                </defs>
                 <XAxis
                   type="number"
                   tick={{ fontSize: 10, fontFamily: "JetBrains Mono" }}
@@ -117,7 +127,7 @@ export function ShapWaterfall({ explanation, loading, onReexplain, disabled }: P
                         ? `Increased risk by ${Math.abs(d.shap).toFixed(4)} log-odds`
                         : `Decreased risk by ${Math.abs(d.shap).toFixed(4)} log-odds`;
                     return (
-                      <div className="rounded-md border bg-popover text-popover-foreground shadow-md px-3 py-2 text-xs">
+                      <div className="rounded-md border bg-popover/95 backdrop-blur-sm text-popover-foreground shadow-md px-3 py-2 text-xs">
                         <div className="font-medium">{primary}</div>
                         <div className="font-mono text-[10px] text-muted-foreground mb-1">{technical}</div>
                         <div>{label}</div>
@@ -131,7 +141,7 @@ export function ShapWaterfall({ explanation, loading, onReexplain, disabled }: P
                   {topData.map((d, i) => (
                     <Cell
                       key={i}
-                      fill={d.shap >= 0 ? "oklch(0.645 0.246 16.439)" : "oklch(0.696 0.17 162.48)"}
+                      fill={d.shap >= 0 ? "url(#shap-rose)" : "url(#shap-emerald)"}
                     />
                   ))}
                 </Bar>

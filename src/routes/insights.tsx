@@ -30,6 +30,7 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getLabel } from "@/lib/featureLabels";
+import { getRiskBand, RISK_BANDS } from "@/lib/riskBands";
 import {
   calibrationByDecile,
   computeMetricsAt,
@@ -54,9 +55,7 @@ export const Route = createFileRoute("/insights")({
 });
 
 function bandColor(p: number): string {
-  if (p < 0.3) return "oklch(0.696 0.17 162.48)"; // emerald-500
-  if (p < 0.7) return "oklch(0.769 0.188 70.08)"; // amber-500
-  return "oklch(0.645 0.246 16.439)"; // rose-500
+  return getRiskBand(p).hex;
 }
 
 const INDIGO = "oklch(0.585 0.233 277.117)";
@@ -72,7 +71,7 @@ function PopoverTip({ active, payload, label, formatter }: {
 }) {
   if (!active || !payload || !payload.length) return null;
   return (
-    <div className="rounded-md border bg-popover text-popover-foreground shadow-md px-3 py-2 text-xs">
+    <div className="rounded-md border bg-popover/95 backdrop-blur-sm text-popover-foreground shadow-md px-3 py-2 text-xs">
       {label !== undefined && <div className="font-medium mb-1">{label}</div>}
       {payload.map((p, i) => (
         <div key={i} className="flex items-center gap-2">
@@ -91,10 +90,6 @@ function InsightsPage() {
   const [showFeatDist, setShowFeatDist] = useState(false);
 
   const probs = useMemo(() => cohort.patients.map((p) => p.probability), [cohort]);
-  const meanProb = useMemo(
-    () => probs.reduce((a, b) => a + b, 0) / probs.length,
-    [probs],
-  );
   const flagged = useMemo(
     () => cohort.patients.filter((p) => p.probability >= threshold).length,
     [cohort, threshold],
@@ -110,11 +105,20 @@ function InsightsPage() {
 
   const topDrivers = useMemo(() => cohort.meanAbsShap.slice(0, 10), [cohort]);
 
+  const bandCounts = useMemo(() => {
+    const counts = { low: 0, moderate: 0, high: 0, very_high: 0 } as Record<string, number>;
+    cohort.patients.forEach((p) => {
+      counts[getRiskBand(p.probability).id]++;
+    });
+    return counts;
+  }, [cohort]);
+  const totalPatients = cohort.patients.length;
+
   return (
     <div className="space-y-8">
       {/* header */}
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Population Insights</h1>
+        <h1 className="text-3xl font-bold tracking-tighter leading-tight">Population Insights</h1>
         <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
           Aggregate patterns across 100 simulated scored patients. Threshold-sensitivity,
           calibration, and feature-importance views.
@@ -127,14 +131,42 @@ function InsightsPage() {
 
       {/* hero metrics */}
       <Card>
-        <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6">
+        <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-4 p-6">
           <Hero value="100" label="Patients in cohort" />
-          <Hero
-            value={flagged.toString()}
-            label={`Flagged at-risk at threshold ${threshold.toFixed(2)}`}
-            accent
-          />
-          <Hero value={meanProb.toFixed(2)} label="Mean predicted probability" />
+          <div className="md:col-span-2">
+            <div className="text-xs text-muted-foreground mb-2">
+              Risk-band distribution across cohort
+            </div>
+            <div className="flex h-7 w-full overflow-hidden rounded-md border">
+              {RISK_BANDS.slice().reverse().map((b) => {
+                const n = bandCounts[b.id] ?? 0;
+                if (n === 0) return null;
+                const pct = (n / totalPatients) * 100;
+                return (
+                  <div
+                    key={b.id}
+                    className={cn("flex items-center justify-center text-[10px] font-mono font-medium text-white", b.bgClass)}
+                    style={{ width: `${pct}%` }}
+                    title={`${b.label}: ${n}`}
+                  >
+                    {pct > 8 ? n : ""}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[11px] font-mono">
+              {RISK_BANDS.slice().reverse().map((b) => (
+                <span key={b.id} className="inline-flex items-center gap-1.5">
+                  <span className={cn("inline-block h-2 w-2 rounded-full", b.bgClass)} />
+                  <span className="tabular-nums">{bandCounts[b.id] ?? 0}</span>
+                  <span className="text-muted-foreground">{b.label}</span>
+                </span>
+              ))}
+            </div>
+            <div className="text-xs text-muted-foreground mt-2">
+              <span className="font-mono tabular-nums text-foreground">{flagged}</span> flagged at-risk at threshold {threshold.toFixed(2)}
+            </div>
+          </div>
           <Hero value={cohort.cohortAuroc.toFixed(4)} label="Cohort AUROC (synthetic)" />
         </CardContent>
       </Card>
@@ -148,7 +180,12 @@ function InsightsPage() {
               <XAxis dataKey="bin" tick={{ fontSize: 10, fontFamily: "JetBrains Mono" }} stroke="currentColor" className="text-muted-foreground" />
               <YAxis tick={{ fontSize: 10, fontFamily: "JetBrains Mono" }} stroke="currentColor" className="text-muted-foreground" allowDecimals={false} />
               <RTooltip content={((p: unknown) => <PopoverTip {...(p as any)} />) as never} cursor={{ fill: "rgba(127,127,127,0.08)" }} />
-              <ReferenceLine x={`${(Math.floor(threshold * 10) / 10).toFixed(1)}–${((Math.floor(threshold * 10) + 1) / 10).toFixed(1)}`} stroke="currentColor" className="text-foreground" strokeDasharray="4 4" />
+              {/* Band boundaries */}
+              <ReferenceLine x="0.3–0.4" stroke="#f59e0b" strokeDasharray="4 4" strokeOpacity={0.7} />
+              <ReferenceLine x="0.6–0.7" stroke="#f97316" strokeDasharray="4 4" strokeOpacity={0.7} />
+              <ReferenceLine x="0.8–0.9" stroke="#f43f5e" strokeDasharray="4 4" strokeOpacity={0.7} />
+              {/* Current threshold */}
+              <ReferenceLine x={`${(Math.floor(threshold * 10) / 10).toFixed(1)}–${((Math.floor(threshold * 10) + 1) / 10).toFixed(1)}`} stroke="currentColor" className="text-foreground" strokeDasharray="2 2" />
               <Bar dataKey="count" name="Patients">
                 {histogram.map((b, i) => (
                   <Cell key={i} fill={bandColor((b.low + b.high) / 2)} />
@@ -165,6 +202,9 @@ function InsightsPage() {
             <span className="font-mono tabular-nums text-sm">{threshold.toFixed(2)}</span>
           </div>
           <Slider min={0} max={1} step={0.01} value={[threshold]} onValueChange={(v) => setThreshold(v[0])} />
+          <p className="text-[10px] text-muted-foreground mt-2 font-mono">
+            Dashed reference lines mark band boundaries: 0.30 (MODERATE) · 0.60 (HIGH) · 0.85 (VERY HIGH).
+          </p>
         </div>
       </SectionCard>
 

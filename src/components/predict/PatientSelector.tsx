@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { Patient } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { getChapterLabel } from "@/lib/featureLabels";
+import { getRiskBand, mockProbabilityFromKey } from "@/lib/riskBands";
 
 interface Props {
   patients: Patient[] | undefined;
@@ -51,18 +52,30 @@ export function PatientSelector({ patients, selectedIndex, onSelect, onRefresh, 
                   const chapter = getChapterLabel(
                     p.features.primary_dx_chapter as string | null | undefined,
                   );
+                  const mockProb = mockProbabilityFromKey(String(p.id ?? i));
+                  const band = getRiskBand(mockProb);
                   return (
                     <button
                       key={p.id ?? i}
                       onClick={() => onSelect(i)}
                       className={cn(
-                        "shrink-0 w-[240px] min-h-[140px] text-left p-5 rounded-xl border bg-card flex flex-col gap-4 transition-all duration-150",
-                        "hover:-translate-y-0.5 hover:shadow-md hover:ring-1 hover:ring-indigo-500/30",
+                        "group relative shrink-0 w-[240px] min-h-[140px] text-left p-5 rounded-xl border bg-card flex flex-col gap-4 transition-all duration-200 ease-out",
+                        band.leftBorderClass,
+                        "hover:-translate-y-0.5 hover:shadow-md hover:scale-[1.01]",
                         active
                           ? "ring-2 ring-indigo-500 border-indigo-500 bg-indigo-50 dark:bg-indigo-950/60"
                           : "border-border",
                       )}
                     >
+                      {/* Floating band pill (hover only) */}
+                      <span
+                        className={cn(
+                          "absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-mono font-medium border opacity-0 group-hover:opacity-100 transition-opacity duration-150",
+                          band.badgeClass,
+                        )}
+                      >
+                        {band.label} · {mockProb.toFixed(2)}
+                      </span>
                       <div className="flex items-center justify-between gap-2">
                         <div className="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-xs font-semibold">
                           #{i + 1}

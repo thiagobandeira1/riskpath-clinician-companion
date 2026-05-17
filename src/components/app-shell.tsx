@@ -11,7 +11,6 @@ import {
   Sun,
   Moon,
   Monitor,
-  Command,
 } from "lucide-react";
 import { Logo, Wordmark } from "@/components/logo";
 import { Badge } from "@/components/ui/badge";
@@ -40,10 +39,8 @@ const ROUTE_LABELS: Record<string, string> = {
 
 export function AppShell({
   children,
-  openPalette,
 }: {
   children: React.ReactNode;
-  openPalette: () => void;
 }) {
   const [collapsed, setCollapsed] = useLocalStorage("riskpath.sidebar.collapsed", false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -101,21 +98,6 @@ export function AppShell({
               </TooltipTrigger>
               <TooltipContent className="max-w-xs">
                 Development environment. Currently running on mock data. Toggle to live backend via VITE_API_BASE_URL + VITE_USE_MOCK_API.
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={openPalette}
-                  className="hidden sm:flex items-center gap-1.5 h-8 px-2.5 rounded-md border bg-background hover:bg-accent text-xs text-muted-foreground"
-                  aria-label="Open command palette"
-                >
-                  <Command className="h-3.5 w-3.5" />
-                  <span className="font-mono">⌘K</span>
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-xs">
-                Press this shortcut to open the command palette — search modules, run actions, jump between patients.
               </TooltipContent>
             </Tooltip>
             <Tooltip>

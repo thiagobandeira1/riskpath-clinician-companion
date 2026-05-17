@@ -27,6 +27,8 @@ import type {
 } from "@/lib/types";
 import { useLocalStorage } from "@/lib/storage";
 import { getChapterLabel, getLabel } from "@/lib/featureLabels";
+import { getRiskBand } from "@/lib/riskBands";
+import { CarePathwayCard } from "@/components/care-pathway";
 import { cn } from "@/lib/utils";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -157,7 +159,7 @@ function MiniShap({ explanation }: { explanation: Explanation }) {
                   ? `Increased risk by ${Math.abs(d.shap).toFixed(4)} log-odds`
                   : `Decreased risk by ${Math.abs(d.shap).toFixed(4)} log-odds`;
               return (
-                <div className="rounded-md border bg-popover text-popover-foreground shadow-md px-3 py-2 text-xs">
+                <div className="rounded-md border bg-popover/95 backdrop-blur-sm text-popover-foreground shadow-md px-3 py-2 text-xs">
                   <div className="font-medium">{primary}</div>
                   <div className="font-mono text-[10px] text-muted-foreground mb-1">{technical}</div>
                   <div>{label}</div>
@@ -179,7 +181,15 @@ function MiniShap({ explanation }: { explanation: Explanation }) {
 
 // ---------- expanded row ----------
 
-function ExpandedRow({ features, colSpan }: { features: PatientFeatures; colSpan: number }) {
+function ExpandedRow({
+  features,
+  probability,
+  colSpan,
+}: {
+  features: PatientFeatures;
+  probability: number;
+  colSpan: number;
+}) {
   const key = useMemo(() => JSON.stringify(features), [features]);
   const { data, isLoading } = useQuery({
     queryKey: ["batch-explain", key],
@@ -196,11 +206,14 @@ function ExpandedRow({ features, colSpan }: { features: PatientFeatures; colSpan
             ))}
           </div>
         ) : (
-          <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-              Top 5 risk drivers for this patient
+          <div className="space-y-6">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                Top 5 risk drivers for this patient
+              </div>
+              <MiniShap explanation={data} />
             </div>
-            <MiniShap explanation={data} />
+            <CarePathwayCard probability={probability} />
           </div>
         )}
       </TableCell>
@@ -497,7 +510,7 @@ function BatchPage() {
       {/* header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Batch Score</h1>
+          <h1 className="text-3xl font-bold tracking-tighter leading-tight">Batch Score</h1>
           <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
             Upload a CSV of patients, score the full batch in a single XGBoost forward pass, and
             export the results with risk-band coloring.
@@ -677,7 +690,7 @@ function BatchPage() {
                   </TableHeader>
                   <TableBody>
                     {sortedResults.map((r) => {
-                      const atRisk = r.prediction === 1;
+                      const band = getRiskBand(r.probability);
                       const isExpanded = expanded.has(r.idx);
                       const toggle = () => {
                         const next = new Set(expanded);
@@ -689,10 +702,7 @@ function BatchPage() {
                         <TableRow
                           key={`row-${r.idx}`}
                           onClick={toggle}
-                          className={cn(
-                            "cursor-pointer",
-                            atRisk && "bg-rose-50/40 dark:bg-rose-950/20 hover:bg-rose-50/60 dark:hover:bg-rose-950/30",
-                          )}
+                          className={cn("cursor-pointer", band.rowTintClass, "hover:bg-accent/30")}
                         >
                           <TableCell className="font-mono tabular-nums text-xs">{r.idx}</TableCell>
                           <TableCell className="text-sm">{getChapterLabel(r.chapter)}</TableCell>
@@ -700,18 +710,21 @@ function BatchPage() {
                           <TableCell className="font-mono text-xs">{r.drg ?? "—"}</TableCell>
                           <TableCell className="text-right font-mono tabular-nums">{r.probability.toFixed(3)}</TableCell>
                           <TableCell>
-                            {atRisk ? (
-                              <Badge className="bg-rose-500 hover:bg-rose-500 text-white">AT RISK</Badge>
-                            ) : (
-                              <Badge className="bg-emerald-500 hover:bg-emerald-500 text-white">LOW RISK</Badge>
-                            )}
+                            <Badge variant="outline" className={cn("border", band.badgeClass)}>
+                              {band.label}
+                            </Badge>
                           </TableCell>
                           <TableCell>
                             {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                           </TableCell>
                         </TableRow>,
                         isExpanded ? (
-                          <ExpandedRow key={`exp-${r.idx}`} features={r.features} colSpan={7} />
+                          <ExpandedRow
+                            key={`exp-${r.idx}`}
+                            features={r.features}
+                            probability={r.probability}
+                            colSpan={7}
+                          />
                         ) : null,
                       ];
                     })}
