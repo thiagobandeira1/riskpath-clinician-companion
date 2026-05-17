@@ -101,7 +101,7 @@ function ModelPage() {
       {/* [1] Header */}
       <div className="flex items-start justify-between gap-6 flex-wrap">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Model Card</h1>
+          <h1 className="text-3xl font-bold tracking-tighter leading-tight">Model Card</h1>
           <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
             Methodology, performance, intended use, and limitations of the deployed
             readmission risk model.
