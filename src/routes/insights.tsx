@@ -30,6 +30,7 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getLabel } from "@/lib/featureLabels";
+import { getRiskBand, RISK_BANDS } from "@/lib/riskBands";
 import {
   calibrationByDecile,
   computeMetricsAt,
