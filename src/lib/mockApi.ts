@@ -208,8 +208,22 @@ function makePatient(targetProb: number, seed: number): Patient {
   return { id: `mock-${seed}`, features };
 }
 
+// Calibrate toward a target probability by binary-searching clinical_complexity.
+function calibrate(patient: Patient, targetProb: number): Patient {
+  let lo = -2.38;
+  let hi = 352;
+  for (let i = 0; i < 32; i++) {
+    const mid = (lo + hi) / 2;
+    patient.features.clinical_complexity = Number(mid.toFixed(3));
+    const p = probabilityFor(patient.features);
+    if (p < targetProb) lo = mid;
+    else hi = mid;
+  }
+  return patient;
+}
+
 const EXAMPLE_PROBS = [0.08, 0.27, 0.48, 0.71, 0.91];
-const EXAMPLES: Patient[] = EXAMPLE_PROBS.map((p, i) => makePatient(p, 1000 + i));
+const EXAMPLES: Patient[] = EXAMPLE_PROBS.map((p, i) => calibrate(makePatient(p, 1000 + i), p));
 
 // --- Prediction ---------------------------------------------------------
 
