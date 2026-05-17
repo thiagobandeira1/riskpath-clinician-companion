@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Target,
@@ -48,6 +49,8 @@ export function AppShell({
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const health = useHealth();
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const moduleLabel = ROUTE_LABELS[pathname] ?? "Predict";
 
@@ -126,7 +129,9 @@ export function AppShell({
                   }
                   aria-label="Toggle theme"
                 >
-                  {theme === "dark" ? (
+                  {!mounted ? (
+                    <Monitor className="h-4 w-4 opacity-0" />
+                  ) : theme === "dark" ? (
                     <Moon className="h-4 w-4" />
                   ) : theme === "light" ? (
                     <Sun className="h-4 w-4" />
