@@ -71,7 +71,7 @@ function PopoverTip({ active, payload, label, formatter }: {
 }) {
   if (!active || !payload || !payload.length) return null;
   return (
-    <div className="rounded-md border bg-popover text-popover-foreground shadow-md px-3 py-2 text-xs">
+    <div className="rounded-md border bg-popover/95 backdrop-blur-sm text-popover-foreground shadow-md px-3 py-2 text-xs">
       {label !== undefined && <div className="font-medium mb-1">{label}</div>}
       {payload.map((p, i) => (
         <div key={i} className="flex items-center gap-2">
