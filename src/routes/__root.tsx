@@ -11,14 +11,13 @@ import { Compass } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { AppShell } from "@/components/app-shell";
-import { CommandPalette, useCommandPalette } from "@/components/command-palette";
 import { useTheme } from "@/components/theme-provider";
 
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
   return (
-    <AppShell openPalette={() => {}}>
+    <AppShell>
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="max-w-md text-center">
           <Compass className="h-10 w-10 mx-auto text-muted-foreground mb-4" />
@@ -40,7 +39,7 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   return (
-    <AppShell openPalette={() => {}}>
+    <AppShell>
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="max-w-md text-center">
           <h1 className="text-xl font-semibold tracking-tight">This page didn't load</h1>
@@ -101,19 +100,15 @@ function RootComponent() {
 }
 
 function ThemedApp() {
-  // initialise theme on every mount
   useTheme();
-  const palette = useCommandPalette();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  // Hide shell on 404 paths handled by notFoundComponent (root provides own shell there)
   return (
     <>
-      <AppShell openPalette={() => palette.setOpen(true)}>
+      <AppShell>
         <div key={pathname} className="animate-in fade-in duration-150">
           <Outlet />
         </div>
       </AppShell>
-      <CommandPalette open={palette.open} setOpen={palette.setOpen} />
       <Toaster position="bottom-right" richColors />
     </>
   );
