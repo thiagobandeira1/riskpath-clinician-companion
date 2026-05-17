@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils";
 const NAV_MODULE = [
   { to: "/predict", label: "Predict", icon: Target, soon: false },
   { to: "/batch", label: "Batch Score", icon: LayoutGrid, soon: false },
-  { to: "/insights", label: "Insights", icon: BarChart3, soon: true },
+  { to: "/insights", label: "Insights", icon: BarChart3, soon: false },
   { to: "/model", label: "Model Card", icon: ScrollText, soon: false },
 ] as const;
 
