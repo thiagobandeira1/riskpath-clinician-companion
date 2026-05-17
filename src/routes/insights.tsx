@@ -55,9 +55,7 @@ export const Route = createFileRoute("/insights")({
 });
 
 function bandColor(p: number): string {
-  if (p < 0.3) return "oklch(0.696 0.17 162.48)"; // emerald-500
-  if (p < 0.7) return "oklch(0.769 0.188 70.08)"; // amber-500
-  return "oklch(0.645 0.246 16.439)"; // rose-500
+  return getRiskBand(p).hex;
 }
 
 const INDIGO = "oklch(0.585 0.233 277.117)";
