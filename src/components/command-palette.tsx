@@ -25,6 +25,7 @@ import { useTheme } from "@/components/theme-provider";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type { Patient } from "@/lib/types";
+import { getChapterLabel } from "@/lib/featureLabels";
 
 export function CommandPalette({
   open,
