@@ -181,7 +181,15 @@ function MiniShap({ explanation }: { explanation: Explanation }) {
 
 // ---------- expanded row ----------
 
-function ExpandedRow({ features, colSpan }: { features: PatientFeatures; colSpan: number }) {
+function ExpandedRow({
+  features,
+  probability,
+  colSpan,
+}: {
+  features: PatientFeatures;
+  probability: number;
+  colSpan: number;
+}) {
   const key = useMemo(() => JSON.stringify(features), [features]);
   const { data, isLoading } = useQuery({
     queryKey: ["batch-explain", key],
@@ -198,11 +206,14 @@ function ExpandedRow({ features, colSpan }: { features: PatientFeatures; colSpan
             ))}
           </div>
         ) : (
-          <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-              Top 5 risk drivers for this patient
+          <div className="space-y-6">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                Top 5 risk drivers for this patient
+              </div>
+              <MiniShap explanation={data} />
             </div>
-            <MiniShap explanation={data} />
+            <CarePathwayCard probability={probability} />
           </div>
         )}
       </TableCell>
