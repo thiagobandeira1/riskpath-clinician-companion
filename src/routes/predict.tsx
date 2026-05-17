@@ -163,7 +163,6 @@ function PredictPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [values, selectedIndex, examples, offline]);
 
-  const atRisk = prediction ? prediction.prediction === 1 : null;
   const allWarnings = useMemo(() => {
     const w: string[] = [];
     if (prediction?.fallback_warnings) w.push(...prediction.fallback_warnings);
