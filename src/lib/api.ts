@@ -70,7 +70,16 @@ export const api = {
   },
   async getExamples(n = 5): Promise<ExamplesResponse> {
     if (USE_MOCK_API) return mockApi.getExamples(n);
-    return call<ExamplesResponse>(`/examples?n=${n}`);
+    // Real backend returns flat 50-field objects (no { features } wrapper).
+    // Normalize to the Patient = { id, features } shape the frontend uses.
+    const raw = await call<{ examples: PatientFeatures[]; n: number }>(`/examples?n=${n}`);
+    return {
+      examples: raw.examples.map((features, idx) => ({
+        id: `patient-${idx + 1}`,
+        features,
+      })),
+      n: raw.n,
+    };
   },
   async predict(features: PatientFeatures, threshold: number): Promise<Prediction> {
     if (USE_MOCK_API) return mockApi.predict(features, threshold);
@@ -91,9 +100,10 @@ export const api = {
     threshold: number,
   ): Promise<BatchPredictionResponse> {
     if (USE_MOCK_API) return mockApi.predictBatch(patients, threshold);
+    // Real backend expects { patients: [{50 flat fields}, ...] }, not { patients: [{features: {...}}, ...] }
     return call<BatchPredictionResponse>(`/predictions/batch?threshold=${threshold}`, {
       method: "POST",
-      body: JSON.stringify({ patients: patients.map((features) => ({ features })) }),
+      body: JSON.stringify({ patients }),
     });
   },
 };
