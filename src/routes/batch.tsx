@@ -711,7 +711,7 @@ function BatchPage() {
                             </TableCell>
                           </TableRow>
                           {isExpanded && <ExpandedRow key={`${r.idx}-exp`} features={r.features} colSpan={7} />}
-                        </>
+                        </Fragment>
                       );
                     })}
                   </TableBody>
