@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { Patient } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { getChapterLabel } from "@/lib/featureLabels";
+import { getRiskBand, mockProbabilityFromKey } from "@/lib/riskBands";
 
 interface Props {
   patients: Patient[] | undefined;
