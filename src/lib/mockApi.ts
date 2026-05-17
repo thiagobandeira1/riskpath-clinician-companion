@@ -212,6 +212,33 @@ function makePatient(targetProb: number, seed: number): Patient {
   features.primary_dx_chapter_te = Number(clampTE(0.09, 0.49).toFixed(4));
   features.race_te = Number(clampTE(0.06, 0.26).toFixed(4));
 
+  // Pin high-impact categoricals & counts so the score actually spans the
+  // requested probability range (otherwise random risky levels saturate it).
+  if (targetProb < 0.35) {
+    features.discharge_location = "Home";
+    features.last_drg_dispo = "HOME_HOME";
+    features.primary_dx_chapter = "musc";
+    features.drg_code = "470";
+    features.prior_admissions_6m = 0;
+    features.prior_readmission_count = 0;
+    features.log_prior_admits_6m = 0;
+    features.severity_x_readmit = 0;
+  } else if (targetProb < 0.6) {
+    features.discharge_location = "Home Health";
+    features.last_drg_dispo = "HOME_HHA";
+    features.primary_dx_chapter = "resp";
+    features.prior_admissions_6m = 1;
+    features.prior_readmission_count = 1;
+  } else {
+    features.discharge_location = targetProb > 0.85 ? "Acute Transfer" : "Skilled Nursing";
+    features.last_drg_dispo = targetProb > 0.85 ? "TRANSFER_ACUTE" : "SNF_SNF";
+    features.primary_dx_chapter = targetProb > 0.85 ? "renal" : "circ";
+    features.drg_code = "871";
+    features.prior_admissions_6m = Math.round(targetProb * 6);
+    features.prior_readmission_count = Math.round(targetProb * 4);
+    features.log_prior_admits_6m = Number(Math.log1p(targetProb * 6).toFixed(2));
+  }
+
   return { id: `mock-${seed}`, features };
 }
 
