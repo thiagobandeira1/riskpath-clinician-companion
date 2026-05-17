@@ -510,7 +510,7 @@ function BatchPage() {
       {/* header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Batch Score</h1>
+          <h1 className="text-3xl font-bold tracking-tighter leading-tight">Batch Score</h1>
           <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
             Upload a CSV of patients, score the full batch in a single XGBoost forward pass, and
             export the results with risk-band coloring.
