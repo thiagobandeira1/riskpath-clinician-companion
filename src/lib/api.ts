@@ -6,6 +6,7 @@ import { API_BASE_URL, USE_MOCK_API } from "./constants";
 import { mockApi } from "./mockApi";
 import type {
   ApiError,
+  BatchPredictionResponse,
   ExamplesResponse,
   Explanation,
   HealthResponse,
