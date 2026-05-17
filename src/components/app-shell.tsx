@@ -129,7 +129,9 @@ export function AppShell({
                   }
                   aria-label="Toggle theme"
                 >
-                  {theme === "dark" ? (
+                  {!mounted ? (
+                    <Monitor className="h-4 w-4 opacity-0" />
+                  ) : theme === "dark" ? (
                     <Moon className="h-4 w-4" />
                   ) : theme === "light" ? (
                     <Sun className="h-4 w-4" />
