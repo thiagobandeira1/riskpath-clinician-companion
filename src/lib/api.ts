@@ -86,6 +86,16 @@ export const api = {
       body: JSON.stringify(features),
     });
   },
+  async predictBatch(
+    patients: PatientFeatures[],
+    threshold: number,
+  ): Promise<BatchPredictionResponse> {
+    if (USE_MOCK_API) return mockApi.predictBatch(patients, threshold);
+    return call<BatchPredictionResponse>(`/predictions/batch?threshold=${threshold}`, {
+      method: "POST",
+      body: JSON.stringify({ patients: patients.map((features) => ({ features })) }),
+    });
+  },
 };
 
 export { ApiCallError };
