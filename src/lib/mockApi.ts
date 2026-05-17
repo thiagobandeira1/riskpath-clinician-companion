@@ -6,6 +6,7 @@ import type {
   ExamplesResponse,
   Explanation,
   FeatureMeta,
+  FeatureValue,
   HealthResponse,
   Metadata,
   Patient,
