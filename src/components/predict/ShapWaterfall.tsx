@@ -82,8 +82,21 @@ export function ShapWaterfall({ explanation, loading, onReexplain, disabled }: P
                 <YAxis
                   type="category"
                   dataKey="name"
-                  width={160}
-                  tick={{ fontSize: 11, fontFamily: "JetBrains Mono" }}
+                  width={200}
+                  tick={(props: { x: number; y: number; payload: { value: string } }) => {
+                    const { x, y, payload } = props;
+                    const { primary, technical } = getLabel(payload.value);
+                    return (
+                      <g transform={`translate(${x},${y})`}>
+                        <text x={-6} y={-4} textAnchor="end" className="fill-foreground" style={{ fontSize: 11, fontWeight: 500 }}>
+                          {primary}
+                        </text>
+                        <text x={-6} y={9} textAnchor="end" className="fill-muted-foreground" style={{ fontSize: 9, fontFamily: "JetBrains Mono" }}>
+                          {technical}
+                        </text>
+                      </g>
+                    );
+                  }}
                   stroke="currentColor"
                   className="text-foreground"
                   interval={0}
@@ -91,22 +104,26 @@ export function ShapWaterfall({ explanation, loading, onReexplain, disabled }: P
                 <ReferenceLine x={0} stroke="currentColor" className="text-border" />
                 <Tooltip
                   cursor={{ fill: "rgba(127,127,127,0.08)" }}
-                  contentStyle={{
-                    background: "var(--color-popover)",
-                    border: "1px solid var(--color-border)",
-                    borderRadius: "6px",
-                    fontSize: "12px",
-                  }}
-                  formatter={((value: number, _name: unknown, item: { payload: { value: number | null } }) => {
-                    const v = item.payload;
+                  content={(props: { active?: boolean; payload?: Array<{ payload: { name: string; shap: number; value: number | null } }> }) => {
+                    const { active, payload } = props;
+                    if (!active || !payload || !payload.length) return null;
+                    const d = payload[0].payload;
+                    const { primary, technical } = getLabel(d.name);
                     const label =
-                      value >= 0
-                        ? `Increased risk by ${Math.abs(value).toFixed(4)} log-odds`
-                        : `Decreased risk by ${Math.abs(value).toFixed(4)} log-odds`;
-                    return [label, `value: ${v.value === null ? "missing" : v.value}`] as [string, string];
-                  }) as never}
-                  labelFormatter={(label) => label}
+                      d.shap >= 0
+                        ? `Increased risk by ${Math.abs(d.shap).toFixed(4)} log-odds`
+                        : `Decreased risk by ${Math.abs(d.shap).toFixed(4)} log-odds`;
+                    return (
+                      <div className="rounded-md border bg-popover text-popover-foreground shadow-md px-3 py-2 text-xs">
+                        <div className="font-medium">{primary}</div>
+                        <div className="font-mono text-[10px] text-muted-foreground mb-1">{technical}</div>
+                        <div>{label}</div>
+                        <div className="text-muted-foreground mt-0.5">value: {d.value === null ? "missing" : d.value}</div>
+                      </div>
+                    );
+                  }}
                 />
+
                 <Bar dataKey="shap" radius={[3, 3, 3, 3]}>
                   {topData.map((d, i) => (
                     <Cell
