@@ -13,6 +13,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { FeatureMeta, PatientFeatures } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { getLabel, getChapterLabel } from "@/lib/featureLabels";
 
 interface Props {
   features: FeatureMeta[];
