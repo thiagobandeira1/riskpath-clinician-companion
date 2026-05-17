@@ -121,7 +121,7 @@ export function ShapWaterfall({ explanation, loading, onReexplain, disabled }: P
                         <div className="text-muted-foreground mt-0.5">value: {d.value === null ? "missing" : d.value}</div>
                       </div>
                     );
-                  }}
+                  }) as never}
                 />
 
                 <Bar dataKey="shap" radius={[3, 3, 3, 3]}>
