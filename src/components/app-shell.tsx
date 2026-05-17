@@ -39,10 +39,8 @@ const ROUTE_LABELS: Record<string, string> = {
 
 export function AppShell({
   children,
-  openPalette,
 }: {
   children: React.ReactNode;
-  openPalette: () => void;
 }) {
   const [collapsed, setCollapsed] = useLocalStorage("riskpath.sidebar.collapsed", false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
