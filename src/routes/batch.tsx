@@ -159,7 +159,7 @@ function MiniShap({ explanation }: { explanation: Explanation }) {
                   ? `Increased risk by ${Math.abs(d.shap).toFixed(4)} log-odds`
                   : `Decreased risk by ${Math.abs(d.shap).toFixed(4)} log-odds`;
               return (
-                <div className="rounded-md border bg-popover text-popover-foreground shadow-md px-3 py-2 text-xs">
+                <div className="rounded-md border bg-popover/95 backdrop-blur-sm text-popover-foreground shadow-md px-3 py-2 text-xs">
                   <div className="font-medium">{primary}</div>
                   <div className="font-mono text-[10px] text-muted-foreground mb-1">{technical}</div>
                   <div>{label}</div>
