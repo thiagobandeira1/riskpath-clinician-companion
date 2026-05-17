@@ -685,7 +685,7 @@ function BatchPage() {
                         setExpanded(next);
                       };
                       return (
-                        <>
+                        <Fragment key={r.idx}>
                           <TableRow
                             key={r.idx}
                             onClick={toggle}
