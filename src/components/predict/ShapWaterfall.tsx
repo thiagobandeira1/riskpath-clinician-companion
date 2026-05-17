@@ -90,14 +90,14 @@ export function ShapWaterfall({ explanation, loading, onReexplain, disabled }: P
                     borderRadius: "6px",
                     fontSize: "12px",
                   }}
-                  formatter={(value: number, _name, item) => {
-                    const v = item.payload as { name: string; shap: number; value: number | null };
+                  formatter={((value: number, _name: unknown, item: { payload: { value: number | null } }) => {
+                    const v = item.payload;
                     const dir = value >= 0 ? "INCREASED" : "DECREASED";
                     return [
                       `${value.toFixed(4)} (${dir} risk)`,
                       `value: ${v.value === null ? "missing" : v.value}`,
-                    ];
-                  }}
+                    ] as [string, string];
+                  }) as never}
                   labelFormatter={(label) => label}
                 />
                 <Bar dataKey="shap" radius={[3, 3, 3, 3]}>
