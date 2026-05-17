@@ -25,6 +25,7 @@ import { useTheme } from "@/components/theme-provider";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type { Patient } from "@/lib/types";
+import { getChapterLabel } from "@/lib/featureLabels";
 
 export function CommandPalette({
   open,
@@ -132,7 +133,7 @@ export function CommandPalette({
                   <User className="mr-2 h-4 w-4" />
                   Patient #{i + 1} ·{" "}
                   <span className="ml-1 text-muted-foreground">
-                    {String(p.features.primary_dx_chapter ?? "—")} ·{" "}
+                    {getChapterLabel(p.features.primary_dx_chapter as string | null | undefined)} ·{" "}
                     {String(p.features.discharge_location ?? "—")}
                   </span>
                 </CommandItem>

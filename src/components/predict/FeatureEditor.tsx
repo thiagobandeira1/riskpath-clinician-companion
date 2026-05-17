@@ -13,6 +13,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { FeatureMeta, PatientFeatures } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { getLabel, getChapterLabel } from "@/lib/featureLabels";
 
 interface Props {
   features: FeatureMeta[];
@@ -48,8 +49,15 @@ export function FeatureEditor({ features, values, baseline, onChange, onReset }:
   }, [features, editedSet]);
 
   const filtered = useMemo(() => {
+    const needle = q.toLowerCase();
     return features.filter((f) => {
-      if (q && !f.name.toLowerCase().includes(q.toLowerCase())) return false;
+      if (q) {
+        const { primary } = getLabel(f.name);
+        const hit =
+          f.name.toLowerCase().includes(needle) ||
+          primary.toLowerCase().includes(needle);
+        if (!hit) return false;
+      }
       if (tab === "categorical" && f.type !== "categorical") return false;
       if (tab === "numeric" && f.type !== "numeric") return false;
       if (tab === "edited" && !editedSet.has(f.name)) return false;
@@ -106,6 +114,8 @@ export function FeatureEditor({ features, values, baseline, onChange, onReset }:
             {filtered.map((f) => {
               const edited = editedSet.has(f.name);
               const v = values[f.name];
+              const { primary, technical } = getLabel(f.name);
+              const isChapter = f.name === "primary_dx_chapter";
               return (
                 <div
                   key={f.name}
@@ -116,8 +126,13 @@ export function FeatureEditor({ features, values, baseline, onChange, onReset }:
                       : "bg-background",
                   )}
                 >
-                  <label className="text-[11px] font-mono text-muted-foreground block mb-1.5 truncate" title={f.name}>
-                    {f.name}
+                  <label className="block mb-1.5" title={technical}>
+                    <span className="text-xs font-medium text-foreground block truncate">
+                      {primary}
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 block truncate">
+                      {technical}
+                    </span>
                   </label>
                   {f.type === "categorical" ? (
                     <Select
@@ -131,7 +146,7 @@ export function FeatureEditor({ features, values, baseline, onChange, onReset }:
                         <SelectItem value="__null__">(missing)</SelectItem>
                         {f.levels.map((lvl) => (
                           <SelectItem key={lvl} value={lvl}>
-                            {lvl}
+                            {isChapter ? `${getChapterLabel(lvl)} (${lvl})` : lvl}
                           </SelectItem>
                         ))}
                       </SelectContent>

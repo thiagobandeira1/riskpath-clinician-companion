@@ -5,7 +5,6 @@ import {
   BarChart3,
   ScrollText,
   Settings as SettingsIcon,
-  BookOpen,
   ChevronLeft,
   ChevronRight,
   Sun,
@@ -16,14 +15,6 @@ import {
 import { Logo, Wordmark } from "@/components/logo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useLocalStorage } from "@/lib/storage";
 import { useTheme } from "@/components/theme-provider";
@@ -76,34 +67,54 @@ export function AppShell({
           </div>
           <div className="flex-1" />
           <div className="flex items-center gap-3">
-            <div
-              className={cn(
-                "flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium border",
-                health.online
-                  ? "bg-emerald-50 text-emerald-900 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900"
-                  : "bg-rose-50 text-rose-900 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900",
-              )}
-              title={health.online ? "Backend reachable" : "Backend unreachable"}
-            >
-              <span
-                className={cn(
-                  "h-1.5 w-1.5 rounded-full",
-                  health.online ? "bg-emerald-500" : "bg-rose-500",
-                )}
-              />
-              {health.online ? "Online" : "Offline"}
-            </div>
-            <Badge variant="outline" className="font-mono text-[10px] tracking-wider">
-              DEV
-            </Badge>
-            <button
-              onClick={openPalette}
-              className="hidden sm:flex items-center gap-1.5 h-8 px-2.5 rounded-md border bg-background hover:bg-accent text-xs text-muted-foreground"
-              aria-label="Open command palette"
-            >
-              <Command className="h-3.5 w-3.5" />
-              <span className="font-mono">⌘K</span>
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div
+                  className={cn(
+                    "flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium border cursor-default",
+                    health.online
+                      ? "bg-emerald-50 text-emerald-900 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900"
+                      : "bg-rose-50 text-rose-900 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "h-1.5 w-1.5 rounded-full",
+                      health.online ? "bg-emerald-500" : "bg-rose-500",
+                    )}
+                  />
+                  {health.online ? "Online" : "Offline"}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                Backend service is reachable. Polls GET /health every 10 seconds. Red dot means service unreachable.
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge variant="outline" className="font-mono text-[10px] tracking-wider cursor-default">
+                  DEV
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                Development environment. Currently running on mock data. Toggle to live backend via VITE_API_BASE_URL + VITE_USE_MOCK_API.
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={openPalette}
+                  className="hidden sm:flex items-center gap-1.5 h-8 px-2.5 rounded-md border bg-background hover:bg-accent text-xs text-muted-foreground"
+                  aria-label="Open command palette"
+                >
+                  <Command className="h-3.5 w-3.5" />
+                  <span className="font-mono">⌘K</span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                Press this shortcut to open the command palette — search modules, run actions, jump between patients.
+              </TooltipContent>
+            </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -126,26 +137,12 @@ export function AppShell({
               </TooltipTrigger>
               <TooltipContent>Theme: {theme}</TooltipContent>
             </Tooltip>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  className="h-8 w-8 rounded-full bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center"
-                  aria-label="User menu"
-                >
-                  TB
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64">
-                <DropdownMenuLabel>
-                  <div className="text-sm font-medium">Thiago Bandeira</div>
-                  <div className="text-xs text-muted-foreground font-normal">
-                    thiagobatistanb@gmail.com
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem disabled>Sign out</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div
+              className="h-8 w-8 rounded-full bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center cursor-default select-none"
+              aria-label="User"
+            >
+              TB
+            </div>
           </div>
         </header>
 
@@ -173,19 +170,6 @@ export function AppShell({
                 ]}
                 pathname={pathname}
               />
-              {!collapsed && (
-                <div className="px-3 mt-1">
-                  <a
-                    href="https://docs.lovable.dev"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 h-9 px-2 rounded-md text-sm text-muted-foreground hover:bg-accent"
-                  >
-                    <BookOpen className="h-4 w-4" />
-                    <span>Docs</span>
-                  </a>
-                </div>
-              )}
             </nav>
             <div className="p-2 border-t">
               <Tooltip>
