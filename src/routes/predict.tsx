@@ -190,7 +190,7 @@ function PredictPage() {
       {/* Module header */}
       <div className="flex items-end justify-between gap-6 flex-wrap">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Readmission Prediction</h1>
+          <h1 className="text-3xl font-bold tracking-tighter leading-tight">Readmission Prediction</h1>
           <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
             Estimate 30-day readmission risk for a single patient and inspect the drivers.
           </p>
@@ -199,14 +199,26 @@ function PredictPage() {
           <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
             Threshold
           </div>
-          <Slider
-            min={0}
-            max={1}
-            step={0.01}
-            value={[threshold]}
-            onValueChange={(v) => setThreshold(v[0] ?? 0.5)}
-            className="w-44"
-          />
+          <div className="relative w-44">
+            <Slider
+              min={0}
+              max={1}
+              step={0.01}
+              value={[threshold]}
+              onValueChange={(v) => setThreshold(v[0] ?? 0.5)}
+            />
+            {/* band-boundary tick dots */}
+            <div className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 h-1.5">
+              {RISK_BAND_BOUNDARIES.map((b, i) => (
+                <span
+                  key={b}
+                  className={`absolute top-1/2 -translate-y-1/2 h-2 w-2 rounded-full ring-1 ring-background ${RISK_BANDS[i + 1].bgClass}`}
+                  style={{ left: `calc(${b * 100}% - 4px)` }}
+                  aria-hidden
+                />
+              ))}
+            </div>
+          </div>
           <div className="font-mono text-sm tabular-nums w-12 text-right">
             {threshold.toFixed(2)}
           </div>
@@ -254,7 +266,6 @@ function PredictPage() {
         <div className="lg:col-span-5">
           <ProbabilityGauge
             probability={prediction?.probability ?? null}
-            atRisk={atRisk}
             updatedAt={updatedAt}
             loading={predictMutation.isPending}
           />
@@ -268,6 +279,9 @@ function PredictPage() {
           />
         </div>
       </div>
+
+      {/* Care pathway */}
+      <CarePathwayCard probability={prediction?.probability ?? null} />
 
       {/* Feature editor */}
       {metaLoading ? (
