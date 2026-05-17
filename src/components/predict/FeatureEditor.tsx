@@ -49,8 +49,15 @@ export function FeatureEditor({ features, values, baseline, onChange, onReset }:
   }, [features, editedSet]);
 
   const filtered = useMemo(() => {
+    const needle = q.toLowerCase();
     return features.filter((f) => {
-      if (q && !f.name.toLowerCase().includes(q.toLowerCase())) return false;
+      if (q) {
+        const { primary } = getLabel(f.name);
+        const hit =
+          f.name.toLowerCase().includes(needle) ||
+          primary.toLowerCase().includes(needle);
+        if (!hit) return false;
+      }
       if (tab === "categorical" && f.type !== "categorical") return false;
       if (tab === "numeric" && f.type !== "numeric") return false;
       if (tab === "edited" && !editedSet.has(f.name)) return false;
