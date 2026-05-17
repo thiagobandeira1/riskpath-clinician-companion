@@ -27,6 +27,8 @@ import type {
 } from "@/lib/types";
 import { useLocalStorage } from "@/lib/storage";
 import { getChapterLabel, getLabel } from "@/lib/featureLabels";
+import { getRiskBand } from "@/lib/riskBands";
+import { CarePathwayCard } from "@/components/care-pathway";
 import { cn } from "@/lib/utils";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
