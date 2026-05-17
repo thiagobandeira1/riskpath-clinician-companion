@@ -17,19 +17,19 @@ import type {
 const CATEGORICAL_FEATURES: { name: string; levels: string[] }[] = [
   {
     name: "discharge_location",
-    levels: ["Home", "Home Health Care", "Skilled Nursing Facility", "Rehab", "Hospice", "Against Medical Advice"],
+    levels: ["Home", "Home Health", "Skilled Nursing", "Rehab", "Hospice", "Acute Transfer", "Against Medical Advice", "Unknown"],
   },
   {
     name: "drg_code",
-    levels: ["291", "292", "293", "470", "871", "872", "885", "194", "190", "189"],
+    levels: ["189", "194", "291", "292", "293", "470", "603", "640", "871", "885", "Unknown"],
   },
   {
     name: "primary_dx_chapter",
-    levels: ["Circulatory", "Respiratory", "Endocrine", "Renal", "Infectious", "Neoplasms", "Mental", "Digestive"],
+    levels: ["circ", "resp", "dig", "endo", "inj", "neop", "musc", "ment", "infe", "renal", "gu", "blood", "skin"],
   },
   {
-    name: "insurance_type",
-    levels: ["Medicare", "Medicaid", "Private", "Self-pay", "Other"],
+    name: "discharge_disposition",
+    levels: ["HOME_HOME", "HOME_HHA", "SNF_SNF", "TRANSFER_ACUTE", "HOSPICE", "DEATH", "UNK_UNK"],
   },
 ];
 
@@ -176,10 +176,12 @@ function probabilityFor(features: PatientFeatures): number {
     0.012 * num(features.num_medications_at_discharge, 9) -
     0.003 * num(features.albumin_g_dl, 3.5) * 4 -
     0.0008 * num(features.time_since_last_discharge_days, 180) +
-    (features.discharge_location === "Skilled Nursing Facility" ? 0.35 : 0) +
+    (features.discharge_location === "Skilled Nursing" ? 0.35 : 0) +
+    (features.discharge_location === "Acute Transfer" ? 0.4 : 0) +
     (features.discharge_location === "Against Medical Advice" ? 0.55 : 0) +
-    (features.primary_dx_chapter === "Circulatory" ? 0.15 : 0) +
-    (features.primary_dx_chapter === "Renal" ? 0.25 : 0);
+    (["SNF_SNF", "TRANSFER_ACUTE", "HOSPICE", "DEATH"].includes(String(features.discharge_disposition)) ? 0.3 : 0) +
+    (features.primary_dx_chapter === "circ" ? 0.15 : 0) +
+    (features.primary_dx_chapter === "renal" ? 0.25 : 0);
   return sigmoid(score - 1.2);
 }
 
@@ -224,8 +226,10 @@ export const mockApi = {
       const v = features[f.name];
       if (f.type === "categorical") {
         const isHighRisk =
-          (f.name === "discharge_location" && (v === "Skilled Nursing Facility" || v === "Against Medical Advice")) ||
-          (f.name === "primary_dx_chapter" && (v === "Renal" || v === "Circulatory"));
+          (f.name === "discharge_location" &&
+            (v === "Skilled Nursing" || v === "Acute Transfer" || v === "Against Medical Advice")) ||
+          (f.name === "discharge_disposition" && ["SNF_SNF", "TRANSFER_ACUTE", "HOSPICE", "DEATH"].includes(String(v))) ||
+          (f.name === "primary_dx_chapter" && (v === "renal" || v === "circ"));
         return isHighRisk ? 0.6 : -0.1;
       }
       const num = typeof v === "number" ? v : f.median;
