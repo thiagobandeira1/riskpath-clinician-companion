@@ -6,6 +6,22 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { Explanation } from "@/lib/types";
 import { getLabel } from "@/lib/featureLabels";
 
+function CustomYTick(props: { x?: number; y?: number; payload?: { value: string } }) {
+  const { x = 0, y = 0, payload } = props;
+  if (!payload) return null;
+  const { primary, technical } = getLabel(payload.value);
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text x={-6} y={-2} textAnchor="end" className="fill-foreground" style={{ fontSize: 11, fontWeight: 500 }}>
+        {primary}
+      </text>
+      <text x={-6} y={11} textAnchor="end" className="fill-muted-foreground" style={{ fontSize: 9, fontFamily: "JetBrains Mono" }}>
+        ({technical})
+      </text>
+    </g>
+  );
+}
+
 interface Props {
   explanation: Explanation | null;
   loading: boolean;
