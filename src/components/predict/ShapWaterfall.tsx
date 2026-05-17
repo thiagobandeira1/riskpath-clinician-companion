@@ -70,7 +70,13 @@ export function ShapWaterfall({ explanation, loading, onReexplain, disabled }: P
                   tick={{ fontSize: 10, fontFamily: "JetBrains Mono" }}
                   stroke="currentColor"
                   className="text-muted-foreground"
-                  domain={["dataMin", "dataMax"]}
+                  domain={(() => {
+                    const maxAbs = Math.max(
+                      0.0001,
+                      ...topData.map((d) => Math.abs(d.shap)),
+                    );
+                    return [-maxAbs, maxAbs];
+                  })()}
                 />
                 <YAxis
                   type="category"
@@ -92,11 +98,11 @@ export function ShapWaterfall({ explanation, loading, onReexplain, disabled }: P
                   }}
                   formatter={((value: number, _name: unknown, item: { payload: { value: number | null } }) => {
                     const v = item.payload;
-                    const dir = value >= 0 ? "INCREASED" : "DECREASED";
-                    return [
-                      `${value.toFixed(4)} (${dir} risk)`,
-                      `value: ${v.value === null ? "missing" : v.value}`,
-                    ] as [string, string];
+                    const label =
+                      value >= 0
+                        ? `Increased risk by ${Math.abs(value).toFixed(4)} log-odds`
+                        : `Decreased risk by ${Math.abs(value).toFixed(4)} log-odds`;
+                    return [label, `value: ${v.value === null ? "missing" : v.value}`] as [string, string];
                   }) as never}
                   labelFormatter={(label) => label}
                 />
