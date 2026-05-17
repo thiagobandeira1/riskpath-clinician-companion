@@ -90,10 +90,6 @@ function InsightsPage() {
   const [showFeatDist, setShowFeatDist] = useState(false);
 
   const probs = useMemo(() => cohort.patients.map((p) => p.probability), [cohort]);
-  void useMemo(
-    () => probs.reduce((a, b) => a + b, 0) / probs.length,
-    [probs],
-  );
   const flagged = useMemo(
     () => cohort.patients.filter((p) => p.probability >= threshold).length,
     [cohort, threshold],
