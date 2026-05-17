@@ -49,6 +49,8 @@ export function AppShell({
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const health = useHealth();
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const moduleLabel = ROUTE_LABELS[pathname] ?? "Predict";
 
