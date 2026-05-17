@@ -104,7 +104,7 @@ export function ShapWaterfall({ explanation, loading, onReexplain, disabled }: P
                 <ReferenceLine x={0} stroke="currentColor" className="text-border" />
                 <Tooltip
                   cursor={{ fill: "rgba(127,127,127,0.08)" }}
-                  content={(props: { active?: boolean; payload?: Array<{ payload: { name: string; shap: number; value: number | null } }> }) => {
+                  content={((props: { active?: boolean; payload?: Array<{ payload: { name: string; shap: number; value: number | null } }> }) => {
                     const { active, payload } = props;
                     if (!active || !payload || !payload.length) return null;
                     const d = payload[0].payload;
