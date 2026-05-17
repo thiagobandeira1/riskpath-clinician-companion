@@ -11,7 +11,6 @@ import {
   Sun,
   Moon,
   Monitor,
-  Command,
 } from "lucide-react";
 import { Logo, Wordmark } from "@/components/logo";
 import { Badge } from "@/components/ui/badge";
