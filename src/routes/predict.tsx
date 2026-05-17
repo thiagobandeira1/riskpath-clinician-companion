@@ -14,7 +14,9 @@ import { ProbabilityGauge } from "@/components/predict/ProbabilityGauge";
 import { ShapWaterfall } from "@/components/predict/ShapWaterfall";
 import { PatientSelector } from "@/components/predict/PatientSelector";
 import { FeatureEditor } from "@/components/predict/FeatureEditor";
+import { CarePathwayCard } from "@/components/care-pathway";
 import { useHealth } from "@/components/use-health";
+import { RISK_BAND_BOUNDARIES, RISK_BANDS } from "@/lib/riskBands";
 
 export const Route = createFileRoute("/predict")({
   head: () => ({
