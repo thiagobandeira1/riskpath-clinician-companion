@@ -71,3 +71,16 @@ export interface HealthResponse {
   status: "ok";
   model: string;
 }
+
+export interface BatchPredictionItem {
+  probability: number;
+  prediction: 0 | 1;
+}
+
+export interface BatchPredictionResponse {
+  results: BatchPredictionItem[];
+  threshold: number;
+  model_name: string;
+  n: number;
+  fallback_warnings: string[];
+}

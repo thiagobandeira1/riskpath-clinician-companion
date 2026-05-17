@@ -6,6 +6,7 @@ import { API_BASE_URL, USE_MOCK_API } from "./constants";
 import { mockApi } from "./mockApi";
 import type {
   ApiError,
+  BatchPredictionResponse,
   ExamplesResponse,
   Explanation,
   HealthResponse,
@@ -83,6 +84,16 @@ export const api = {
     return call<Explanation>(`/explanations`, {
       method: "POST",
       body: JSON.stringify(features),
+    });
+  },
+  async predictBatch(
+    patients: PatientFeatures[],
+    threshold: number,
+  ): Promise<BatchPredictionResponse> {
+    if (USE_MOCK_API) return mockApi.predictBatch(patients, threshold);
+    return call<BatchPredictionResponse>(`/predictions/batch?threshold=${threshold}`, {
+      method: "POST",
+      body: JSON.stringify({ patients: patients.map((features) => ({ features })) }),
     });
   },
 };

@@ -417,4 +417,25 @@ export const mockApi = {
       320,
     );
   },
+  async predictBatch(patients: PatientFeatures[], threshold: number) {
+    const results = await Promise.all(
+      patients.map(async (features) => {
+        const probability = probabilityFor(features);
+        return {
+          probability,
+          prediction: (probability >= threshold ? 1 : 0) as 0 | 1,
+        };
+      }),
+    );
+    return delay(
+      {
+        results,
+        threshold,
+        model_name: MODEL_NAME,
+        n: results.length,
+        fallback_warnings: [],
+      },
+      Math.min(800, 120 + patients.length * 8),
+    );
+  },
 };
