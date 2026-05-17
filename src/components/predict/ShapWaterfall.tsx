@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Explanation } from "@/lib/types";
+import { getLabel } from "@/lib/featureLabels";
 
 interface Props {
   explanation: Explanation | null;
