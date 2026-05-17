@@ -147,7 +147,7 @@ function InsightsPage() {
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
               <XAxis dataKey="bin" tick={{ fontSize: 10, fontFamily: "JetBrains Mono" }} stroke="currentColor" className="text-muted-foreground" />
               <YAxis tick={{ fontSize: 10, fontFamily: "JetBrains Mono" }} stroke="currentColor" className="text-muted-foreground" allowDecimals={false} />
-              <RTooltip content={((p: unknown) => <PopoverTip {...(p as Parameters<typeof PopoverTip>[0])} />) as never} cursor={{ fill: "rgba(127,127,127,0.08)" }} />
+              <RTooltip content={((p: unknown) => <PopoverTip {...(p as any)} />) as never} cursor={{ fill: "rgba(127,127,127,0.08)" }} />
               <ReferenceLine x={`${(Math.floor(threshold * 10) / 10).toFixed(1)}–${((Math.floor(threshold * 10) + 1) / 10).toFixed(1)}`} stroke="currentColor" className="text-foreground" strokeDasharray="4 4" />
               <Bar dataKey="count" name="Patients">
                 {histogram.map((b, i) => (
@@ -199,7 +199,7 @@ function InsightsPage() {
                 }}
               />
               <RTooltip
-                content={((p: unknown) => <PopoverTip {...(p as Parameters<typeof PopoverTip>[0])} formatter={(v) => v.toFixed(4)} />) as never}
+                content={((p: unknown) => <PopoverTip {...(p as any)} formatter={(v) => v.toFixed(4)} />) as never}
                 cursor={{ fill: "rgba(127,127,127,0.08)" }}
               />
               <Bar dataKey="value" name="Mean |SHAP|" fill={INDIGO} radius={[3, 3, 3, 3]} />
@@ -233,7 +233,7 @@ function InsightsPage() {
                 tickFormatter={(v) => v.toFixed(1)}
               />
               <RTooltip
-                content={((p: unknown) => <PopoverTip {...(p as Parameters<typeof PopoverTip>[0])} formatter={(v) => v.toFixed(3)} />) as never}
+                content={((p: unknown) => <PopoverTip {...(p as any)} formatter={(v) => v.toFixed(3)} />) as never}
                 cursor={{ stroke: "currentColor", strokeOpacity: 0.2 }}
               />
               <ReferenceLine x={Math.round(threshold * 10) / 10} stroke="currentColor" className="text-foreground" strokeDasharray="4 4" />
@@ -282,7 +282,7 @@ function InsightsPage() {
                 tickFormatter={(v) => v.toFixed(1)}
               />
               <RTooltip
-                content={((p: unknown) => <PopoverTip {...(p as Parameters<typeof PopoverTip>[0])} formatter={(v) => v.toFixed(3)} />) as never}
+                content={((p: unknown) => <PopoverTip {...(p as any)} formatter={(v) => v.toFixed(3)} />) as never}
                 cursor={{ stroke: "currentColor", strokeOpacity: 0.2 }}
               />
               <Line
