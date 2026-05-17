@@ -83,16 +83,6 @@ function PredictPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [examples]);
 
-  // Allow command palette to dispatch select-patient events
-  useEffect(() => {
-    const handler = (e: Event) => {
-      const idx = (e as CustomEvent<number>).detail;
-      if (typeof idx === "number") selectPatient(idx);
-    };
-    window.addEventListener("riskpath:select-patient", handler);
-    return () => window.removeEventListener("riskpath:select-patient", handler);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [examples]);
 
   function selectPatient(i: number) {
     if (!examples?.examples?.[i]) return;
