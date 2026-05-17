@@ -102,21 +102,6 @@ export function AppShell({
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button
-                  onClick={openPalette}
-                  className="hidden sm:flex items-center gap-1.5 h-8 px-2.5 rounded-md border bg-background hover:bg-accent text-xs text-muted-foreground"
-                  aria-label="Open command palette"
-                >
-                  <Command className="h-3.5 w-3.5" />
-                  <span className="font-mono">⌘K</span>
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-xs">
-                Press this shortcut to open the command palette — search modules, run actions, jump between patients.
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
