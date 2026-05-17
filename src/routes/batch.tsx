@@ -690,7 +690,7 @@ function BatchPage() {
                   </TableHeader>
                   <TableBody>
                     {sortedResults.map((r) => {
-                      const atRisk = r.prediction === 1;
+                      const band = getRiskBand(r.probability);
                       const isExpanded = expanded.has(r.idx);
                       const toggle = () => {
                         const next = new Set(expanded);
@@ -702,10 +702,7 @@ function BatchPage() {
                         <TableRow
                           key={`row-${r.idx}`}
                           onClick={toggle}
-                          className={cn(
-                            "cursor-pointer",
-                            atRisk && "bg-rose-50/40 dark:bg-rose-950/20 hover:bg-rose-50/60 dark:hover:bg-rose-950/30",
-                          )}
+                          className={cn("cursor-pointer", band.rowTintClass, "hover:bg-accent/30")}
                         >
                           <TableCell className="font-mono tabular-nums text-xs">{r.idx}</TableCell>
                           <TableCell className="text-sm">{getChapterLabel(r.chapter)}</TableCell>
@@ -713,18 +710,21 @@ function BatchPage() {
                           <TableCell className="font-mono text-xs">{r.drg ?? "—"}</TableCell>
                           <TableCell className="text-right font-mono tabular-nums">{r.probability.toFixed(3)}</TableCell>
                           <TableCell>
-                            {atRisk ? (
-                              <Badge className="bg-rose-500 hover:bg-rose-500 text-white">AT RISK</Badge>
-                            ) : (
-                              <Badge className="bg-emerald-500 hover:bg-emerald-500 text-white">LOW RISK</Badge>
-                            )}
+                            <Badge variant="outline" className={cn("border", band.badgeClass)}>
+                              {band.label}
+                            </Badge>
                           </TableCell>
                           <TableCell>
                             {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                           </TableCell>
                         </TableRow>,
                         isExpanded ? (
-                          <ExpandedRow key={`exp-${r.idx}`} features={r.features} colSpan={7} />
+                          <ExpandedRow
+                            key={`exp-${r.idx}`}
+                            features={r.features}
+                            probability={r.probability}
+                            colSpan={7}
+                          />
                         ) : null,
                       ];
                     })}
