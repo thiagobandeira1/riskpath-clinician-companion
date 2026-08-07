@@ -631,6 +631,14 @@ function BatchPage() {
         </Card>
       )}
 
+      {/* model fallback notice */}
+      {results && results.fallback_warnings.length > 0 && !fallbackDismissed && (
+        <FallbackNotice
+          warnings={results.fallback_warnings}
+          onDismiss={() => setFallbackDismissed(true)}
+        />
+      )}
+
       {/* results */}
       {results && summary && (
         <div ref={resultsRef}>
