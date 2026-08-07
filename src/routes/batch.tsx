@@ -235,6 +235,7 @@ function BatchPage() {
   const [errors, setErrors] = useState<ValidationError[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [results, setResults] = useState<BatchPredictionResponse | null>(null);
+  const [fallbackDismissed, setFallbackDismissed] = useState(false);
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
   const [sortKey, setSortKey] = useState<SortKey>("probability");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
