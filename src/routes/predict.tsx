@@ -50,6 +50,7 @@ function PredictPage() {
   const [prediction, setPrediction] = useState<Prediction | null>(null);
   const [updatedAt, setUpdatedAt] = useState<number | null>(null);
   const [bannerDismissed, setBannerDismissed] = useState<string[]>([]);
+  void bannerDismissed;
 
   const { data: metadata, isLoading: metaLoading, error: metaError } = useQuery({
     queryKey: ["metadata"],
