@@ -16,6 +16,7 @@ import { PatientSelector } from "@/components/predict/PatientSelector";
 import { FeatureEditor } from "@/components/predict/FeatureEditor";
 import { CarePathwayCard } from "@/components/care-pathway";
 import { useHealth } from "@/components/use-health";
+import { FallbackNotice } from "@/components/fallback-notice";
 import { boundariesFor, RISK_BANDS } from "@/lib/riskBands";
 
 export const Route = createFileRoute("/predict")({
