@@ -16,7 +16,6 @@ import { PatientSelector } from "@/components/predict/PatientSelector";
 import { FeatureEditor } from "@/components/predict/FeatureEditor";
 import { CarePathwayCard } from "@/components/care-pathway";
 import { useHealth } from "@/components/use-health";
-import { FallbackNotice } from "@/components/fallback-notice";
 import { boundariesFor, RISK_BANDS } from "@/lib/riskBands";
 
 export const Route = createFileRoute("/predict")({
@@ -50,7 +49,6 @@ function PredictPage() {
   const [explanation, setExplanation] = useState<Explanation | null>(null);
   const [prediction, setPrediction] = useState<Prediction | null>(null);
   const [updatedAt, setUpdatedAt] = useState<number | null>(null);
-  const [bannerDismissed, setBannerDismissed] = useState<string[]>([]);
 
   const { data: metadata, isLoading: metaLoading, error: metaError } = useQuery({
     queryKey: ["metadata"],
@@ -164,13 +162,6 @@ function PredictPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [values, selectedIndex, examples, offline]);
 
-  const allWarnings = useMemo(() => {
-    const w: string[] = [];
-    if (prediction?.fallback_warnings) w.push(...prediction.fallback_warnings);
-    if (explanation?.fallback_warnings) w.push(...explanation.fallback_warnings);
-    return Array.from(new Set(w)).filter((x) => !bannerDismissed.includes(x));
-  }, [prediction, explanation, bannerDismissed]);
-
   if (metaError) {
     return (
       <div className="space-y-6">
@@ -225,14 +216,6 @@ function PredictPage() {
           </div>
         </div>
       </div>
-
-      {/* Fallback warnings */}
-      {allWarnings.length > 0 && (
-        <FallbackNotice
-          warnings={allWarnings}
-          onDismiss={() => setBannerDismissed((d) => [...d, ...allWarnings])}
-        />
-      )}
 
       {/* Patient selector */}
       {metaLoading ? (

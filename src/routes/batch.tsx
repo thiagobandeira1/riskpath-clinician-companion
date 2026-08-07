@@ -32,7 +32,6 @@ import { CarePathwayCard } from "@/components/care-pathway";
 import { cn } from "@/lib/utils";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { FallbackNotice } from "@/components/fallback-notice";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -236,7 +235,6 @@ function BatchPage() {
   const [errors, setErrors] = useState<ValidationError[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [results, setResults] = useState<BatchPredictionResponse | null>(null);
-  const [fallbackDismissed, setFallbackDismissed] = useState(false);
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
   const [sortKey, setSortKey] = useState<SortKey>("probability");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
@@ -390,7 +388,6 @@ function BatchPage() {
       ),
     onSuccess: (data) => {
       setResults(data);
-      setFallbackDismissed(false);
       setExpanded(new Set());
       setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
     },
@@ -632,14 +629,6 @@ function BatchPage() {
             </p>
           </CardContent>
         </Card>
-      )}
-
-      {/* model fallback notice */}
-      {results && results.fallback_warnings.length > 0 && !fallbackDismissed && (
-        <FallbackNotice
-          warnings={results.fallback_warnings}
-          onDismiss={() => setFallbackDismissed(true)}
-        />
       )}
 
       {/* results */}
