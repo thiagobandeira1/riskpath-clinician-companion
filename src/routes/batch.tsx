@@ -27,7 +27,7 @@ import type {
 } from "@/lib/types";
 import { useLocalStorage } from "@/lib/storage";
 import { getChapterLabel, getLabel } from "@/lib/featureLabels";
-import { getRiskBand } from "@/lib/riskBands";
+import { bandForProbability } from "@/lib/riskBands";
 import { CarePathwayCard } from "@/components/care-pathway";
 import { cn } from "@/lib/utils";
 
@@ -690,7 +690,7 @@ function BatchPage() {
                   </TableHeader>
                   <TableBody>
                     {sortedResults.map((r) => {
-                      const band = getRiskBand(r.probability);
+                      const band = bandForProbability(r.probability, metadata?.risk_bands);
                       const isExpanded = expanded.has(r.idx);
                       const toggle = () => {
                         const next = new Set(expanded);
