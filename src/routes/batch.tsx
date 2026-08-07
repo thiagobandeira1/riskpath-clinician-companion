@@ -32,6 +32,7 @@ import { CarePathwayCard } from "@/components/care-pathway";
 import { cn } from "@/lib/utils";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { FallbackNotice } from "@/components/fallback-notice";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
