@@ -16,6 +16,7 @@ import { PatientSelector } from "@/components/predict/PatientSelector";
 import { FeatureEditor } from "@/components/predict/FeatureEditor";
 import { CarePathwayCard } from "@/components/care-pathway";
 import { useHealth } from "@/components/use-health";
+import { FallbackNotice } from "@/components/fallback-notice";
 import { boundariesFor, RISK_BANDS } from "@/lib/riskBands";
 
 export const Route = createFileRoute("/predict")({
@@ -227,25 +228,10 @@ function PredictPage() {
 
       {/* Fallback warnings */}
       {allWarnings.length > 0 && (
-        <Alert>
-          <AlertTriangle className="h-4 w-4 text-amber-600" />
-          <AlertTitle>Model fallback notice</AlertTitle>
-          <AlertDescription>
-            <ul className="list-disc pl-4 space-y-0.5 mt-1 text-sm">
-              {allWarnings.map((w) => (
-                <li key={w} className="flex items-start justify-between gap-3">
-                  <span>{w}</span>
-                  <button
-                    onClick={() => setBannerDismissed((d) => [...d, w])}
-                    className="text-xs text-muted-foreground hover:text-foreground shrink-0"
-                  >
-                    Dismiss
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </AlertDescription>
-        </Alert>
+        <FallbackNotice
+          warnings={allWarnings}
+          onDismiss={() => setBannerDismissed((d) => [...d, ...allWarnings])}
+        />
       )}
 
       {/* Patient selector */}
