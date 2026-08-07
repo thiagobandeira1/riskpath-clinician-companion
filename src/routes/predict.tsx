@@ -16,7 +16,7 @@ import { PatientSelector } from "@/components/predict/PatientSelector";
 import { FeatureEditor } from "@/components/predict/FeatureEditor";
 import { CarePathwayCard } from "@/components/care-pathway";
 import { useHealth } from "@/components/use-health";
-import { RISK_BAND_BOUNDARIES, RISK_BANDS } from "@/lib/riskBands";
+import { boundariesFor, RISK_BANDS } from "@/lib/riskBands";
 
 export const Route = createFileRoute("/predict")({
   head: () => ({
@@ -209,7 +209,7 @@ function PredictPage() {
             />
             {/* band-boundary tick dots */}
             <div className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 h-1.5">
-              {RISK_BAND_BOUNDARIES.map((b, i) => (
+              {boundariesFor(metadata?.risk_bands).map((b, i) => (
                 <span
                   key={b}
                   className={`absolute top-1/2 -translate-y-1/2 h-2 w-2 rounded-full ring-1 ring-background ${RISK_BANDS[i + 1].bgClass}`}
@@ -268,6 +268,7 @@ function PredictPage() {
             probability={prediction?.probability ?? null}
             updatedAt={updatedAt}
             loading={predictMutation.isPending}
+            bands={metadata?.risk_bands}
           />
         </div>
         <div className="lg:col-span-7">
@@ -281,7 +282,7 @@ function PredictPage() {
       </div>
 
       {/* Care pathway */}
-      <CarePathwayCard probability={prediction?.probability ?? null} />
+      <CarePathwayCard probability={prediction?.probability ?? null} bands={metadata?.risk_bands} />
 
       {/* Feature editor */}
       {metaLoading ? (

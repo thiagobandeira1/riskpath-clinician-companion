@@ -4,13 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from "date-fns";
-import { getRiskBand } from "@/lib/riskBands";
+import { bandForProbability, type RiskBandCutpoints } from "@/lib/riskBands";
 import { cn } from "@/lib/utils";
 
 interface Props {
   probability: number | null;
   updatedAt: number | null;
   loading: boolean;
+  bands?: RiskBandCutpoints;
 }
 
 const W = 280;
@@ -28,7 +29,7 @@ const START = polar(0);
 const END = polar(180);
 const FULL_PATH = `M ${START.x} ${START.y} A ${R} ${R} 0 0 1 ${END.x} ${END.y}`;
 
-export function ProbabilityGauge({ probability, updatedAt, loading }: Props) {
+export function ProbabilityGauge({ probability, updatedAt, loading, bands }: Props) {
   const spring = useSpring(0, { stiffness: 100, damping: 20 });
   const display = useTransform(spring, (v) => v.toFixed(3));
 
@@ -46,20 +47,20 @@ export function ProbabilityGauge({ probability, updatedAt, loading }: Props) {
           setBlurArc(true);
           setTimeout(() => setBlurArc(false), 250);
         }
-        const prevBand = getRiskBand(prev).id;
-        const nextBand = getRiskBand(probability).id;
+        const prevBand = bandForProbability(prev, bands).id;
+        const nextBand = bandForProbability(probability, bands).id;
         if (prevBand !== nextBand) {
-          setPulseHex(getRiskBand(probability).hex);
+          setPulseHex(bandForProbability(probability, bands).hex);
           setTimeout(() => setPulseHex(null), 320);
         }
       }
       prevRef.current = probability;
     }
-  }, [probability, spring]);
+  }, [probability, spring, bands]);
 
   const arcLength = Math.PI * R;
   const dashOffset = useTransform(spring, (v) => arcLength * (1 - v));
-  const band = probability === null ? null : getRiskBand(probability);
+  const band = probability === null ? null : bandForProbability(probability, bands);
 
   return (
     <Card
@@ -131,6 +132,10 @@ export function ProbabilityGauge({ probability, updatedAt, loading }: Props) {
             {band.label}
           </Badge>
         )}
+
+        <div className="mt-2 text-[11px] text-muted-foreground">
+          {bands ? "Bands: model-calibrated (p50/p80/p95)" : "Bands: fixed thresholds"}
+        </div>
 
         {updatedAt && (
           <div className="mt-3 text-xs text-muted-foreground">

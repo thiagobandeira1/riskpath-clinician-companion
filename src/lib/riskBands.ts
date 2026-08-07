@@ -94,11 +94,38 @@ const VERY_HIGH: RiskBand = {
 
 export const RISK_BANDS: RiskBand[] = [LOW, MODERATE, HIGH, VERY_HIGH];
 
+export interface RiskBandCutpoints {
+  low_max: number;
+  moderate_max: number;
+  high_max: number;
+}
+
 export function getRiskBand(probability: number): RiskBand {
   if (probability < 0.3) return LOW;
   if (probability < 0.6) return MODERATE;
   if (probability < 0.85) return HIGH;
   return VERY_HIGH;
+}
+
+/**
+ * Classify a probability using backend-supplied cut-points when available,
+ * falling back to the fixed [0.3, 0.6, 0.85] thresholds otherwise.
+ */
+export function bandForProbability(
+  p: number,
+  bands?: RiskBandCutpoints,
+): RiskBand {
+  if (!bands) return getRiskBand(p);
+  if (p <= bands.low_max) return LOW;
+  if (p <= bands.moderate_max) return MODERATE;
+  if (p <= bands.high_max) return HIGH;
+  return VERY_HIGH;
+}
+
+export function boundariesFor(bands?: RiskBandCutpoints): number[] {
+  return bands
+    ? [bands.low_max, bands.moderate_max, bands.high_max]
+    : [...RISK_BAND_BOUNDARIES];
 }
 
 /** Deterministic pseudo-probability for a patient (used for sample-card tinting before scoring). */

@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getRiskBand, type RiskBand, type RiskBandId } from "@/lib/riskBands";
+import { bandForProbability, type RiskBand, type RiskBandCutpoints, type RiskBandId } from "@/lib/riskBands";
 import { cn } from "@/lib/utils";
 
 interface Action {
@@ -66,8 +66,15 @@ const ACTIONS: Record<RiskBandId, Action[]> = {
   ],
 };
 
-export function CarePathwayCard({ probability }: { probability: number | null }) {
-  const band: RiskBand | null = probability === null ? null : getRiskBand(probability);
+export function CarePathwayCard({
+  probability,
+  bands,
+}: {
+  probability: number | null;
+  bands?: RiskBandCutpoints;
+}) {
+  const band: RiskBand | null =
+    probability === null ? null : bandForProbability(probability, bands);
 
   return (
     <Card className="h-full">
