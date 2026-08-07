@@ -390,6 +390,7 @@ function BatchPage() {
       ),
     onSuccess: (data) => {
       setResults(data);
+      setFallbackDismissed(false);
       setExpanded(new Set());
       setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
     },
