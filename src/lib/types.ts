@@ -26,6 +26,12 @@ export interface Metadata {
   features: FeatureMeta[];
   model_info: ModelInfo;
   default_threshold: number;
+  risk_bands?: {
+    low_max: number;
+    moderate_max: number;
+    high_max: number;
+    basis?: string;
+  };
 }
 
 export type FeatureValue = string | number | null;
