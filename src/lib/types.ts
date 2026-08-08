@@ -90,3 +90,14 @@ export interface BatchPredictionResponse {
   n: number;
   fallback_warnings: string[];
 }
+
+export interface TrajectoryResponse {
+  days: number[];
+  cumulative_probability: number[];
+  daily_increment: number[];
+  median_predicted_day: number;
+  horizon_probability: number;
+  model_name: string;
+  disclaimer: string;
+  fallback_warnings: string[];
+}

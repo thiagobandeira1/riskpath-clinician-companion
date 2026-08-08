@@ -12,6 +12,7 @@ import type {
   Patient,
   PatientFeatures,
   Prediction,
+  TrajectoryResponse,
 } from "./types";
 
 const MODEL_NAME = "xgboost-v7-seed0-MOCK";
@@ -297,6 +298,18 @@ function delay<T>(value: T, ms = 220): Promise<T> {
 
 // --- API ----------------------------------------------------------------
 
+function erf(x: number): number {
+  const sign = x < 0 ? -1 : 1;
+  const ax = Math.abs(x);
+  const t = 1 / (1 + 0.3275911 * ax);
+  const y =
+    1 -
+    ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) *
+      t *
+      Math.exp(-ax * ax);
+  return sign * y;
+}
+
 export const mockApi = {
   async getMetadata(): Promise<Metadata> {
     return delay(METADATA, 180);
@@ -321,6 +334,31 @@ export const mockApi = {
         fallback_warnings: warnings,
       },
       260,
+    );
+  },
+  async getTrajectory(features: PatientFeatures): Promise<TrajectoryResponse> {
+    // Lognormal AFT shape, mirroring the real endpoint: higher risk -> earlier median.
+    const p30 = probabilityFor(features);
+    const medianDay = Math.max(6, 150 * (1 - p30));
+    const mu = Math.log(medianDay);
+    const cdf = (t: number) => 0.5 * (1 + erf((Math.log(t) - mu) / Math.SQRT2));
+    const days = Array.from({ length: 30 }, (_, i) => i + 1);
+    const cumulative = days.map((t) => Number(Math.min(1, Math.max(0, cdf(t))).toFixed(6)));
+    const increments = cumulative.map((v, i) =>
+      Number((i === 0 ? v : v - cumulative[i - 1]).toFixed(6)),
+    );
+    return delay(
+      {
+        days,
+        cumulative_probability: cumulative,
+        daily_increment: increments,
+        median_predicted_day: Number(medianDay.toFixed(1)),
+        horizon_probability: cumulative[29],
+        model_name: "xgboost-aft67-seed42-MOCK",
+        disclaimer: "Parametric AFT estimate; deaths treated as censoring; research prototype.",
+        fallback_warnings: [],
+      },
+      240,
     );
   },
   async explain(features: PatientFeatures): Promise<Explanation> {

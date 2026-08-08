@@ -13,6 +13,7 @@ import type {
   Metadata,
   PatientFeatures,
   Prediction,
+  TrajectoryResponse,
 } from "./types";
 
 class ApiCallError extends Error {
@@ -84,6 +85,13 @@ export const api = {
   async predict(features: PatientFeatures, threshold: number): Promise<Prediction> {
     if (USE_MOCK_API) return mockApi.predict(features, threshold);
     return call<Prediction>(`/predictions?threshold=${threshold}`, {
+      method: "POST",
+      body: JSON.stringify(features),
+    });
+  },
+  async getTrajectory(features: PatientFeatures): Promise<TrajectoryResponse> {
+    if (USE_MOCK_API) return mockApi.getTrajectory(features);
+    return call<TrajectoryResponse>(`/predictions/trajectory`, {
       method: "POST",
       body: JSON.stringify(features),
     });

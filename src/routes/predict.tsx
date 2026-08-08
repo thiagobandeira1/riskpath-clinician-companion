@@ -4,13 +4,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { api, ApiCallError } from "@/lib/api";
-import type { Explanation, PatientFeatures, Prediction } from "@/lib/types";
+import type {
+  TrajectoryResponse, Explanation, PatientFeatures, Prediction } from "@/lib/types";
 import { useLocalStorage } from "@/lib/storage";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
 import { ProbabilityGauge } from "@/components/predict/ProbabilityGauge";
+import { RiskTimeline } from "@/components/predict/RiskTimeline";
 import { ShapWaterfall } from "@/components/predict/ShapWaterfall";
 import { PatientSelector } from "@/components/predict/PatientSelector";
 import { FeatureEditor } from "@/components/predict/FeatureEditor";
@@ -48,6 +50,7 @@ function PredictPage() {
   const [baseline, setBaseline] = useState<PatientFeatures | null>(null);
   const [explanation, setExplanation] = useState<Explanation | null>(null);
   const [prediction, setPrediction] = useState<Prediction | null>(null);
+  const [trajectory, setTrajectory] = useState<TrajectoryResponse | null>(null);
   const [updatedAt, setUpdatedAt] = useState<number | null>(null);
 
   const { data: metadata, isLoading: metaLoading, error: metaError } = useQuery({
@@ -115,12 +118,25 @@ function PredictPage() {
     if (editDebounceRef.current) clearTimeout(editDebounceRef.current);
     editDebounceRef.current = setTimeout(() => {
       predictMutation.mutate({ f: values, t: debouncedThreshold });
+      trajectoryMutation.mutate(values);
     }, 350);
     return () => {
       if (editDebounceRef.current) clearTimeout(editDebounceRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [values, debouncedThreshold, metadata, offline]);
+
+  // Day-by-day risk curve. Errors stay silent: the timeline is supplementary,
+  // and a backend without the AFT artifact should not surface an error banner.
+  const trajectoryMutation = useMutation({
+    mutationFn: (f: PatientFeatures) => api.getTrajectory(f),
+    onSuccess: (data) => {
+      setTrajectory(data);
+    },
+    onError: () => {
+      setTrajectory(null);
+    },
+  });
 
   const explainMutation = useMutation({
     mutationFn: (f: PatientFeatures) => api.explain(f),
@@ -249,6 +265,9 @@ function PredictPage() {
           />
         </div>
       </div>
+
+      {/* Day-by-day risk timeline */}
+      <RiskTimeline trajectory={trajectory} loading={trajectoryMutation.isPending} />
 
       {/* Care pathway */}
       <CarePathwayCard probability={prediction?.probability ?? null} bands={metadata?.risk_bands} />
