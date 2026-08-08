@@ -15,7 +15,7 @@ import type {
   TrajectoryResponse,
 } from "./types";
 
-const MODEL_NAME = "xgboost-v7-seed0-MOCK";
+const MODEL_NAME = "xgboost-rfe66-seed42-MOCK";
 
 // --- Canonical V7 feature schema ----------------------------------------
 
@@ -85,7 +85,6 @@ const NUMERIC_SPEC: [string, number, number, number, number][] = [
   ["clinical_complexity", -2.38, 3.82, 352, 0],
   ["los_per_prior_admit", 0, 1, 308, 17],
   ["discharge_surge", 0, 0, 1, 65],
-  ["race_te", 0.06, 0.21, 0.26, 0],
   ["bilirubin_max", 0, 0, 82, 59],
   ["sodium_last", 82, 139, 184, 0],
   ["bp_diastolic_outpatient", 20, 70, 148, 39],
@@ -211,7 +210,6 @@ function makePatient(targetProb: number, seed: number): Patient {
   features.discharge_location_te = Number(clampTE(0.001, 0.51).toFixed(4));
   features.last_drg_dispo_te = Number(clampTE(0.08, 0.59).toFixed(4));
   features.primary_dx_chapter_te = Number(clampTE(0.09, 0.49).toFixed(4));
-  features.race_te = Number(clampTE(0.06, 0.26).toFixed(4));
 
   // Pin high-impact categoricals & counts so the score actually spans the
   // requested probability range (otherwise random risky levels saturate it).

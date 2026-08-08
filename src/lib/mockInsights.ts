@@ -42,7 +42,6 @@ const NUMERIC_FEATURES: { name: string; min: number; median: number; max: number
   { name: "clinical_complexity", min: -2.38, median: 3.82, max: 352 },
   { name: "los_per_prior_admit", min: 0, median: 1, max: 308 },
   { name: "discharge_surge", min: 0, median: 0, max: 1 },
-  { name: "race_te", min: 0.06, median: 0.21, max: 0.26 },
   { name: "bilirubin_max", min: 0, median: 0, max: 82 },
   { name: "sodium_last", min: 82, median: 139, max: 184 },
   { name: "bp_diastolic_outpatient", min: 20, median: 70, max: 148 },

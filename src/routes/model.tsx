@@ -352,10 +352,16 @@ function ModelPage() {
             caregiver support, medication adherence).
           </li>
           <li>
-            Race and ethnicity are encoded via target encoding{" "}
-            (<code className="font-mono text-xs">race_te</code>). Use the model with
-            awareness that historical care disparities may be reflected in training
-            data.
+            The model does not use race. A target encoding of race was tested and
+            removed: it changed discrimination by 0.0001 (p = 0.77) and did not
+            account for the subgroup gap below, so it was dropped from the deployed
+            feature set.
+          </li>
+          <li>
+            Discrimination is nonetheless lower for Black patients than for White
+            patients (AUROC 0.758 versus 0.793). Removing the race encoding did not
+            close that gap, which is a property of the remaining predictors and an
+            open limitation.
           </li>
           <li>
             Predicted probabilities are calibrated for training-time prevalence;
