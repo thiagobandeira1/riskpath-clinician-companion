@@ -55,12 +55,9 @@ export function RiskTimeline({ trajectory, loading }: Props) {
     increment: trajectory.daily_increment[i],
   }));
 
-  // Peak-risk day: where the most new risk accrues.
-  const peakIdx = trajectory.daily_increment.reduce(
-    (best, v, i, arr) => (v > arr[best] ? i : best),
-    0,
-  );
-  const peakDay = trajectory.days[peakIdx];
+  const weekOne = trajectory.cumulative_probability[6] ?? 0;
+  const shareInWeekOne =
+    trajectory.horizon_probability > 0 ? weekOne / trajectory.horizon_probability : 0;
   const withinWindow = trajectory.median_predicted_day <= 30;
 
   return (
@@ -79,8 +76,10 @@ export function RiskTimeline({ trajectory, loading }: Props) {
             <div className="text-xs text-muted-foreground">Cumulative risk by day 30</div>
           </div>
           <div>
-            <div className="font-mono text-2xl font-semibold tabular-nums">Day {peakDay}</div>
-            <div className="text-xs text-muted-foreground">Highest single-day risk</div>
+            <div className="font-mono text-2xl font-semibold tabular-nums">{pct(weekOne)}</div>
+            <div className="text-xs text-muted-foreground">
+              Risk within 7 days ({Math.round(shareInWeekOne * 100)}% of window total)
+            </div>
           </div>
           <div>
             <div className="font-mono text-2xl font-semibold tabular-nums">
@@ -94,30 +93,30 @@ export function RiskTimeline({ trajectory, loading }: Props) {
 
         <div className="h-[220px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ top: 8, right: 12, bottom: 4, left: 4 }}>
+            <AreaChart data={data} margin={{ top: 8, right: 16, bottom: 20, left: 8 }}>
               <defs>
                 <linearGradient id="riskFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.35} />
-                  <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.02} />
+                  <stop offset="0%" stopColor="#6366f1" stopOpacity={0.45} />
+                  <stop offset="100%" stopColor="#6366f1" stopOpacity={0.03} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.25} />
               <XAxis
                 dataKey="day"
                 ticks={[1, 7, 14, 21, 30]}
-                tick={{ fontSize: 11 }}
+                tick={{ fontSize: 11, fill: "#94a3b8" }}
                 tickLine={false}
                 axisLine={false}
                 label={{
                   value: "Days since discharge",
                   position: "insideBottom",
-                  offset: -2,
-                  style: { fontSize: 11, fill: "hsl(var(--muted-foreground))" },
+                  offset: -8,
+                  style: { fontSize: 11, fill: "#94a3b8" },
                 }}
               />
               <YAxis
                 tickFormatter={(v: number) => `${Math.round(v * 100)}%`}
-                tick={{ fontSize: 11 }}
+                tick={{ fontSize: 11, fill: "#94a3b8" }}
                 tickLine={false}
                 axisLine={false}
                 width={44}
@@ -125,15 +124,15 @@ export function RiskTimeline({ trajectory, loading }: Props) {
                   value: "Cumulative risk",
                   angle: -90,
                   position: "insideLeft",
-                  style: { fontSize: 11, fill: "hsl(var(--muted-foreground))", textAnchor: "middle" },
+                  style: { fontSize: 11, fill: "#94a3b8", textAnchor: "middle" },
                 }}
               />
               <Tooltip content={<ChartTooltip />} />
-              <ReferenceLine x={7} stroke="hsl(var(--muted-foreground))" strokeDasharray="2 4" opacity={0.5} />
+              <ReferenceLine x={7} stroke="#94a3b8" strokeDasharray="2 4" opacity={0.6} />
               <Area
                 type="monotone"
                 dataKey="cumulative"
-                stroke="hsl(var(--primary))"
+                stroke="#818cf8"
                 strokeWidth={2.5}
                 fill="url(#riskFill)"
               />
